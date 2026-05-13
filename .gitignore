@@ -3,9 +3,9 @@ data/raw/
 data/processed/
 
 # Exceções: parquets usados pela API (16 MB total)
-!data/processed/stats_v2.parquet
+!data/processed/stats_slim.parquet
 !data/processed/aerodromos.parquet
-!data/processed/percentuais_mes.parquet
+!data/processed/percentuais_slim.parquet
 
 *.csv
 *.xls

@@ -6,16 +6,16 @@ WORKDIR /app
 COPY requirements-api.txt .
 RUN pip install --no-cache-dir -r requirements-api.txt
 
-# Copy only what the API needs
+# Source
 COPY src/api.py src/api.py
 COPY src/__init__.py src/__init__.py
 
-# Only the 3 parquets used by the API (~16 MB total)
-COPY data/processed/stats_v2.parquet        data/processed/stats_v2.parquet
-COPY data/processed/aerodromos.parquet      data/processed/aerodromos.parquet
-COPY data/processed/percentuais_mes.parquet data/processed/percentuais_mes.parquet
+# Slim parquets: 4 MB disco, 48 MB RAM (pré-computados com tipos otimizados)
+COPY data/processed/stats_slim.parquet        data/processed/stats_slim.parquet
+COPY data/processed/aerodromos.parquet        data/processed/aerodromos.parquet
+COPY data/processed/percentuais_slim.parquet  data/processed/percentuais_slim.parquet
 
-# Render injects $PORT at runtime; fallback to 8000 locally
+# Render injeta $PORT em runtime
 ENV PORT=8000
 EXPOSE 8000
 

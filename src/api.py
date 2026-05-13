@@ -45,44 +45,12 @@ ANAC_BLUE  = "#003F7F"
 ANAC_LIGHT = "#0066CC"
 GOLD       = "#C89600"
 
-# ── Carga de dados (colunas mínimas + dtypes eficientes → cabe em 512 MB) ─────
+# ── Carga de dados — parquets slim pré-computados (4 MB disco, 48 MB RAM) ─────
 
 print("Carregando parquets…", flush=True)
-
-# stats_v2: 12 colunas originais → 7 usadas; strings como category
-DF = pd.read_parquet(
-    CACHE / "stats_v2.parquet",
-    columns=["EMPRESA_SIGLA", "ANO", "MES", "DATA",
-             "AEROPORTO_DE_ORIGEM_SIGLA", "AEROPORTO_DE_DESTINO_SIGLA",
-             "PASSAGEIROS_PAGOS"],
-    engine="pyarrow",
-).assign(
-    EMPRESA_SIGLA=lambda d: d["EMPRESA_SIGLA"].astype("category"),
-    AEROPORTO_DE_ORIGEM_SIGLA=lambda d: d["AEROPORTO_DE_ORIGEM_SIGLA"].astype("category"),
-    AEROPORTO_DE_DESTINO_SIGLA=lambda d: d["AEROPORTO_DE_DESTINO_SIGLA"].astype("category"),
-    PASSAGEIROS_PAGOS=lambda d: d["PASSAGEIROS_PAGOS"].astype("int32"),
-)
-
-# aerodromos: pequeno, carrega tudo
+DF  = pd.read_parquet(CACHE / "stats_slim.parquet")
 DFA = pd.read_parquet(CACHE / "aerodromos.parquet")
-
-# percentuais_mes: 12 colunas originais → 5 usadas; 652 MB → ~60 MB
-DFP = pd.read_parquet(
-    CACHE / "percentuais_mes.parquet",
-    columns=["Empresa_Aerea", "Aeroporto_Origem_Designador_OACI",
-             "Percentuais_de_Atrasos_superiores_a_30_minutos", "ano", "mes"],
-    engine="pyarrow",
-)
-DFP.columns = DFP.columns.str.strip()
-DFP["sigla"] = DFP["Empresa_Aerea"].str.extract(r"^([A-Z0-9]{2,4})\s*-")
-DFP = DFP.drop(columns=["Empresa_Aerea"])
-DFP["Aeroporto_Origem_Designador_OACI"] = (
-    DFP["Aeroporto_Origem_Designador_OACI"].astype("category")
-)
-DFP["sigla"] = DFP["sigla"].astype("category")
-DFP["Percentuais_de_Atrasos_superiores_a_30_minutos"] = (
-    DFP["Percentuais_de_Atrasos_superiores_a_30_minutos"].astype("float32")
-)
+DFP = pd.read_parquet(CACHE / "percentuais_slim.parquet")
 
 ANO_MIN = int(DF["ANO"].min())
 ANO_MAX = int(DF["ANO"].max())
