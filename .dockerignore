@@ -1,0 +1,28 @@
+# Dev environment
+.venv/
+__pycache__/
+*.pyc
+.env
+
+# Frontend (deployed separately to Vercel)
+frontend/
+
+# Notebooks and slides
+notebooks/
+slides/
+scrap/
+
+# Large parquets NOT used by the API
+data/processed/percentuais.parquet
+data/processed/vra_heatmap.parquet
+data/processed/stats.parquet
+data/raw/
+
+# Misc
+.git/
+*.md
+assets/
+viz/
+src/app.py
+src/viz.py
+src/download_all.py

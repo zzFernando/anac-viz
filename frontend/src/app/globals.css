@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --anac-blue:  #003F7F;
+  --anac-light: #0066CC;
+  --gold:       #C89600;
+  --surface:    #EEF2F7;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--surface);
+  color: #0F172A;
+}
+
+/* ── Range slider two-thumb ─────────────────────────────────────── */
+.range-slider-wrap { position: relative; height: 20px; }
+.range-slider-wrap input[type="range"] {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background: transparent;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.range-slider-wrap input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--anac-light);
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  pointer-events: all;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+.range-slider-wrap input[type="range"]::-moz-range-thumb {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--anac-light);
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  pointer-events: all;
+  cursor: pointer;
+}
+.range-track {
+  position: absolute;
+  height: 4px;
+  border-radius: 2px;
+  background: #E2E8F0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+}
+.range-fill {
+  position: absolute;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--anac-light);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* ── Tab navigation ─────────────────────────────────────────────── */
+.tab-nav button {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748B;
+  border-bottom: 2px solid transparent;
+  padding: 0.4rem 1rem;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.tab-nav button:hover { color: var(--anac-blue); }
+.tab-nav button.active {
+  color: var(--anac-blue);
+  border-bottom-color: var(--anac-blue);
+}
+
+/* ── Section title ──────────────────────────────────────────────── */
+.section-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #64748B;
+  border-left: 3px solid var(--anac-blue);
+  padding-left: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ── Sigma graph container ──────────────────────────────────────── */
+.sigma-container {
+  border-radius: 0;
+  overflow: hidden;
+}
+
+/* ── Tooltip ────────────────────────────────────────────────────── */
+.chart-tooltip {
+  position: fixed;
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #0F172A;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  pointer-events: none;
+  z-index: 1000;
+  max-width: 220px;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }

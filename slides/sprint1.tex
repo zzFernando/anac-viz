@@ -18,25 +18,27 @@
 \usepackage{colortbl}
 \usepackage{url}
 
+% ── Cores ────────────────────────────────────────────────────────────────────
 \definecolor{darkgray}{RGB}{80,80,80}
-
 \definecolor{anacblue}{RGB}{0,82,147}
 \definecolor{anacgold}{RGB}{200,150,0}
 \definecolor{lightgray}{RGB}{240,240,240}
-
 \definecolor{latamblue}{RGB}{55,138,221}
 \definecolor{golgreen}{RGB}{99,153,34}
 \definecolor{azulpurple}{RGB}{127,119,221}
 \definecolor{passaredoamber}{RGB}{239,159,39}
 \definecolor{othergray}{RGB}{136,135,128}
 
+% ── Tema ─────────────────────────────────────────────────────────────────────
 \setbeamercolor{palette primary}{bg=anacblue, fg=white}
 \setbeamercolor{palette secondary}{bg=anacblue!80, fg=white}
 \setbeamercolor{palette tertiary}{bg=anacblue!60, fg=white}
 \setbeamercolor{structure}{fg=anacblue}
 \setbeamercolor{block title}{bg=anacblue, fg=white}
 \setbeamercolor{alerted text}{fg=anacgold}
+\setbeamerfont{block title}{size=\small}
 
+% ── Metadados ─────────────────────────────────────────────────────────────────
 \title[Aviação Doméstica Brasileira]{Panorama da Aviação Doméstica Brasileira}
 \author{Fernando Souza da Silveira}
 \institute{PPGC -- UFRGS}
@@ -52,13 +54,11 @@
 \section{Dataset}
 % ============================================================
 
-\begin{frame}{Fontes de Dados}
-
+\begin{frame}[t]{Fontes de Dados}
   Dados abertos da \textbf{ANAC} (\texttt{sistemas.anac.gov.br/dadosabertos}):
-
-  \bigskip
+  \medskip
   \begin{columns}[T]
-    \begin{column}{0.32\textwidth}
+    \begin{column}{0.31\textwidth}
       \begin{block}{Produção Aeronáutica}
         \small
         \textbf{1,08 M} linhas $\cdot$ 38 atributos\\
@@ -66,7 +66,7 @@
         Empresa $\times$ rota $\times$ mês
       \end{block}
     \end{column}
-    \begin{column}{0.32\textwidth}
+    \begin{column}{0.31\textwidth}
       \begin{block}{Atrasos e Cancelamentos}
         \small
         \textbf{972 arquivos} CSV\\
@@ -74,7 +74,7 @@
         27 anos $\times$ 12 meses
       \end{block}
     \end{column}
-    \begin{column}{0.32\textwidth}
+    \begin{column}{0.31\textwidth}
       \begin{block}{Aeródromos}
         \small
         \textbf{6.882} aeródromos\\
@@ -83,28 +83,26 @@
       \end{block}
     \end{column}
   \end{columns}
-
-  \bigskip
+  \medskip
   \begin{alertblock}{Foco}
     Voos \textbf{domésticos}, 2016--2026.
     Comparativo: \textbf{SBPA/POA} (Salgado Filho) vs.\ média nacional.
   \end{alertblock}
-
 \end{frame}
 
-\begin{frame}{Classificação dos Dados (Munzner)}
-
+% ── Classificação ────────────────────────────────────────────────────────────
+\begin{frame}[t]{Classificação dos Dados (Munzner)}
   \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \textbf{Tipo:} Tabela plana (\textit{flat table})\\[8pt]
-      \begin{tabular}{ll}
-        \textbf{Chaves}  & empresa, rota, ano, mês \\[4pt]
-        \textbf{Valores} & métricas operacionais   \\
+    \begin{column}{0.46\textwidth}
+      \textbf{Tipo:} Tabela plana (\textit{flat table})\\[5pt]
+      \begin{tabular}{@{}ll@{}}
+        \textbf{Chaves}  & empresa, rota, ano, mês \\[3pt]
+        \textbf{Valores} & métricas operacionais \\
       \end{tabular}
     \end{column}
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.50\textwidth}
       \textbf{Atributos:}
-      \begin{itemize}\setlength{\itemsep}{4pt}
+      \begin{itemize}\setlength{\itemsep}{3pt}
         \item \textbf{Nominal:} empresa, aeroporto, UF, país
         \item \textbf{Ord.\ sequencial:} ano
         \item \textbf{Ord.\ cíclico:} mês
@@ -112,9 +110,8 @@
       \end{itemize}
     \end{column}
   \end{columns}
-
-  \bigskip
-  \small
+  \smallskip
+  \footnotesize
   \begin{tabular}{@{}lll@{}}
     \toprule
     \textbf{Atributo} & \textbf{Tipo} & \textbf{Exemplo} \\
@@ -129,112 +126,127 @@
     \texttt{ASK / RPK}           & Quantitativo     & assentos/pax $\times$ km \\
     \bottomrule
   \end{tabular}
-
 \end{frame}
 
 % ============================================================
 \section{Persona}
 % ============================================================
 
-\begin{frame}{Usuário Fictício}
-
+\begin{frame}[t]{Usuário Fictício}
   \begin{block}{Alberto Santos, 41 anos --- Gerente de Operações, Aeroporto Salgado Filho (SBPA)}
-    \begin{itemize}\setlength{\itemsep}{6pt}
+    \begin{itemize}\setlength{\itemsep}{7pt}
       \item Precisa apresentar à diretoria o \alert{desempenho operacional do SBPA}
             após a recuperação das enchentes de 2024
-      \item Quer comparar o aeroporto com a média nacional
+      \item Quer comparar o aeroporto com a média nacional e com outros hubs regionais
       \item Familiaridade com planilhas; \textbf{não} é especialista em visualização
-      \item Espera um painel HTML interativo, sem instalação
+      \item Espera um painel HTML interativo, sem instalação de software
     \end{itemize}
   \end{block}
-
 \end{frame}
 
 % ============================================================
 \section{Tarefas}
 % ============================================================
 
-\begin{frame}{Tarefas}
-
+\begin{frame}[t]{Tarefas}
   \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.46\textwidth}
       \textbf{Alto nível}
-      \begin{enumerate}\setlength{\itemsep}{6pt}
+      \begin{enumerate}\setlength{\itemsep}{5pt}
         \item \textbf{Descobrir} padrões do setor ao longo do tempo
         \item \textbf{Comparar} SBPA com outros aeroportos e média nacional
         \item \textbf{Identificar} recuperação pós-enchentes (2025--2026)
         \item \textbf{Localizar} o SBPA no contexto geográfico nacional
       \end{enumerate}
     \end{column}
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.50\textwidth}
       \textbf{Nível intermediário}
-      \begin{itemize}\setlength{\itemsep}{4pt}
+      \begin{itemize}\setlength{\itemsep}{3pt}
         \item Evolução mensal de passageiros e decolagens
-        \item Calcular \textit{load factor} = RPK/ASK
+        \item Calcular \textit{load factor} = RPK\,/\,ASK
         \item Top-5 rotas mais movimentadas do SBPA
-        \item \% atrasos e cancelamentos por mês/ano
+        \item Percentual de atrasos e cancelamentos por mês/ano
         \item Market share por companhia no SBPA
         \item Impacto do COVID (2020) e enchentes (2024)
       \end{itemize}
     \end{column}
   \end{columns}
-
 \end{frame}
 
 % ============================================================
 \section{Visualizações}
 % ============================================================
 
-\begin{frame}{Viz 1 --- Mapa com Bolhas}
-  \begin{columns}[T]
-    \begin{column}{0.52\textwidth}
-      \begin{tikzpicture}[scale=0.80]
+% ── Viz 1 ────────────────────────────────────────────────────────────────────
+\begin{frame}[t]{Viz 1 --- Mapa com Bolhas}
+  \begin{columns}[c]
+    \begin{column}{0.50\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.72]
+        % Contorno do Brasil (esquemático)
         \draw[anacblue!30, fill=anacblue!10, thick, rounded corners=8pt]
-          (0.5,0) -- (4.5,0.3) -- (5.5,1.5) -- (5.2,4.5) -- (4,5.5) --
-          (2,5.2) -- (0.3,3.5) -- (0,1.5) -- cycle;
-        \filldraw[anacblue!75, opacity=0.8] (3.5,2.0) circle (0.70cm);
-        \filldraw[anacblue!75, opacity=0.8] (3.3,1.7) circle (0.50cm);
-        \filldraw[anacblue!75, opacity=0.8] (3.0,3.5) circle (0.42cm);
-        \filldraw[anacgold,    opacity=0.9] (2.2,0.6) circle (0.35cm);
-        \filldraw[anacblue!75, opacity=0.8] (4.5,2.5) circle (0.28cm);
-        \filldraw[anacblue!50, opacity=0.8] (1.5,3.0) circle (0.18cm);
+          (0.5,0) -- (4.5,0.3) -- (5.5,1.5) -- (5.2,4.5) --
+          (4,5.5) -- (2,5.2) -- (0.3,3.5) -- (0,1.5) -- cycle;
+        % Aeroportos: área ∝ passageiros
+        \filldraw[anacblue!80, opacity=0.88] (3.5,2.0) circle (0.72cm);
+        \filldraw[anacblue!80, opacity=0.88] (3.3,1.6) circle (0.52cm);
+        \filldraw[anacblue!80, opacity=0.88] (3.0,3.5) circle (0.43cm);
+        \filldraw[anacgold,    opacity=0.92] (2.2,0.6) circle (0.36cm);
+        \filldraw[anacblue!70, opacity=0.85] (4.4,2.5) circle (0.28cm);
+        \filldraw[anacblue!50, opacity=0.80] (1.5,3.0) circle (0.18cm);
+        % Rótulos
         \node[font=\tiny, white] at (3.5,2.0) {GRU};
-        \node[font=\tiny, white] at (3.3,1.7) {CGH};
+        \node[font=\tiny, white] at (3.3,1.6) {CGH};
         \node[font=\tiny, white] at (3.0,3.5) {BSB};
-        \node[font=\tiny\bfseries, black] at (2.2,0.6) {POA};
-        \node[font=\tiny, white] at (4.5,2.5) {GIG};
-        \draw[darkgray, rounded corners=2pt] (0,-0.5) rectangle (5.5,-0.1);
-        \filldraw[anacblue] (3.5,-0.3) circle (0.12cm);
-        \node[font=\tiny, darkgray] at (0.4,-0.72) {2016};
-        \node[font=\tiny, darkgray] at (2.7,-0.72) {Ano};
-        \node[font=\tiny, darkgray] at (5.1,-0.72) {2026};
+        \node[font=\tiny\bfseries, anacgold!10!black] at (2.2,0.6) {POA};
+        \node[font=\tiny, white] at (4.4,2.5) {GIG};
+        % Slider de ano (dentro do mapa, na parte inferior)
+        \fill[white, opacity=0.85, rounded corners=2pt]
+          (0.2,0.08) rectangle (5.3,0.44);
+        \fill[anacblue!30, rounded corners=1pt]
+          (0.4,0.18) rectangle (5.1,0.34);
+        \filldraw[anacblue] (2.9,0.26) circle (0.10cm);
+        \node[font=\tiny, darkgray] at (0.7,0.10) {\tiny 2016};
+        \node[font=\tiny, darkgray] at (2.75,0.10) {\tiny Ano};
+        \node[font=\tiny, darkgray] at (4.8,0.10) {\tiny 2026};
       \end{tikzpicture}
     \end{column}
-    \begin{column}{0.45\textwidth}
-      \begin{itemize}\setlength{\itemsep}{6pt}
-        \item Área do círculo $\propto$ passageiros
+    \begin{column}{0.47\textwidth}
+      \begin{itemize}\setlength{\itemsep}{7pt}
+        \item Área do círculo $\propto$ passageiros pagos
         \item \textcolor{anacgold}{\textbf{Dourado}} = SBPA em destaque
-        \item Slider para filtrar por ano
+        \item Slider interativo para filtrar por ano
       \end{itemize}
       \medskip
-      \textbf{Responde:} o SBPA é um hub regional ou figura entre os maiores aeroportos do país?\\[6pt]
-      \textbf{Dados:} \texttt{Dados\_Estatisticos.csv} + aeródromos (lat/lon)
+      \textbf{Responde:} o SBPA é um hub regional ou figura entre os maiores aeroportos do país?
+      \medskip\\
+      \footnotesize\textbf{Dados:} \texttt{Dados\_Estatisticos.csv}\\
+      + cadastro aeródromos (lat/lon)
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}{Viz 2 --- Série Temporal}
-  \begin{columns}[T]
-    \begin{column}{0.58\textwidth}
-      \begin{tikzpicture}[scale=0.88]
+% ── Viz 2 ────────────────────────────────────────────────────────────────────
+\begin{frame}[t]{Viz 2 --- Série Temporal}
+  \begin{columns}[c]
+    \begin{column}{0.57\textwidth}
+      \centering
+      \begin{tikzpicture}
         \begin{axis}[
-          width=7.5cm, height=4.8cm,
-          xlabel={\small Ano}, ylabel={\small Passageiros (M/mês)},
+          width=7.8cm, height=4.2cm,
+          scale only axis,
+          xlabel={\footnotesize Ano},
+          ylabel={\footnotesize Passageiros (M/mês)},
           xmin=2015.5, xmax=2026.5, ymin=0, ymax=12,
-          grid=both, grid style={line width=0.3pt, draw=gray!30},
-          tick label style={font=\tiny}, label style={font=\small},
+          grid=both,
+          grid style={line width=0.3pt, draw=gray!25},
+          tick label style={font=\tiny},
+          label style={font=\footnotesize},
           xtick={2016,2018,2020,2022,2024,2026},
-          legend style={font=\tiny, at={(0.98,0.05)}, anchor=south east},
+          ytick={0,3,6,9,12},
+          legend style={font=\tiny, at={(0.99,0.05)}, anchor=south east,
+                        draw=gray!40, fill=white, inner sep=3pt},
+          axis line style={draw=gray!60},
         ]
           \addplot[anacblue, thick, smooth] coordinates {
             (2016,8.5)(2017,9.2)(2018,9.8)(2019,10.5)
@@ -246,166 +258,163 @@
             (2020,0.3)(2021,0.6)(2022,0.9)(2023,1.1)
             (2024,0.2)(2025,0.7)(2026,0.9)
           };
-          \draw[red!60, dashed, thin] (axis cs:2020,0) -- (axis cs:2020,12);
-          \node[font=\tiny, red!70, rotate=90] at (axis cs:2019.7,7) {COVID};
-          \draw[orange!80, dashed, thin] (axis cs:2024,0) -- (axis cs:2024,12);
-          \node[font=\tiny, orange!80, rotate=90] at (axis cs:2023.7,5) {Enchentes};
+          % Marcos de eventos
+          \draw[red!55, dashed, thin] (axis cs:2020,0) -- (axis cs:2020,12);
+          \node[font=\tiny, red!65, rotate=90, anchor=south]
+            at (axis cs:2019.75,6.5) {COVID};
+          \draw[orange!70, dashed, thin] (axis cs:2024,0) -- (axis cs:2024,12);
+          \node[font=\tiny, orange!80, rotate=90, anchor=south]
+            at (axis cs:2023.75,5.0) {Enchentes};
           \addlegendentry{Nacional}
           \addlegendentry{SBPA}
         \end{axis}
       \end{tikzpicture}
     \end{column}
-    \begin{column}{0.39\textwidth}
-      \begin{itemize}\setlength{\itemsep}{6pt}
+    \begin{column}{0.40\textwidth}
+      \begin{itemize}\setlength{\itemsep}{7pt}
         \item Nacional vs.\ SBPA mês a mês
         \item Marcos: COVID (2020) e enchentes RS (2024)
-        \item Curva de recuperação
+        \item Curva de recuperação visível
       \end{itemize}
       \medskip
-      \textbf{Responde:} as enchentes de 2024 impactaram o SBPA mais do que a média nacional e o aeroporto já voltou ao nível anterior?\\[6pt]
-      \textbf{Dados:} \texttt{Dados\_Estatisticos.csv}
+      \textbf{Responde:} as enchentes de 2024 impactaram o SBPA mais do que a média nacional? O aeroporto já voltou ao nível anterior?
+      \medskip\\
+      \footnotesize\textbf{Dados:} \texttt{Dados\_Estatisticos.csv}
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}{Viz 3 --- Heatmap de Atrasos}
-  \begin{columns}[T]
-    \begin{column}{0.55\textwidth}
-      \begin{tikzpicture}[scale=0.85]
-        \node[font=\tiny, rotate=90] at (-0.45, 2.5) {Ano};
-        \node[font=\tiny] at (2.9, -0.45) {Mês};
+% ── Viz 3 ────────────────────────────────────────────────────────────────────
+\begin{frame}[t]{Viz 3 --- Heatmap de Atrasos}
+  \begin{columns}[c]
+    \begin{column}{0.54\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.82]
+        % Rótulo do eixo Y
+        \node[font=\tiny, rotate=90, anchor=south] at (-0.62, 1.50) {Ano};
+        % Grade de células: linhas = anos (0=2022 bottom), colunas = meses
         \foreach \y/\ano in {0/2022, 1/2023, 2/2024, 3/2025, 4/2026} {
-          \node[font=\tiny, anchor=east] at (-0.05, \y*0.62+0.31) {\ano};
+          \node[font=\tiny, anchor=east] at (-0.10, \y*0.60+0.30) {\ano};
           \foreach \x in {0,...,11} {
             \pgfmathsetmacro{\intens}{
-              (\y==2 && \x>=3 && \x<=7) ? 90 :
-              (\x==6 || \x==7) ? 75 :
-              (\x==11 || \x==0) ? 65 :
-              25 + \x*3
+              (\y==2 && \x>=3 && \x<=7) ? 92 :
+              (\x==6 || \x==7)          ? 68 :
+              (\x==11 || \x==0)         ? 58 :
+              22 + \x*4
             }
-            \fill[anacblue!\intens] (\x*0.49, \y*0.62) rectangle ++(0.46,0.57);
+            \fill[anacblue!\intens] (\x*0.50, \y*0.60) rectangle ++(0.47,0.56);
           }
         }
-        \foreach \x/\m in {0/J,1/F,2/M,3/A,4/M,5/J,6/J,7/A,8/S,9/O,10/N,11/D}{
-          \node[font=\tiny] at (\x*0.49+0.23, -0.18) {\m};
+        % Rótulos dos meses
+        \foreach \x/\m in
+          {0/J,1/F,2/M,3/A,4/M,5/J,6/J,7/A,8/S,9/O,10/N,11/D}{
+          \node[font=\tiny] at (\x*0.50+0.235, -0.20) {\m};
         }
-        \foreach \i in {0,1,2,3,4}{
-          \pgfmathsetmacro{\v}{\i*20}
-          \fill[anacblue!\v] (\i*0.62, 3.55) rectangle ++(0.58,0.28);
+        \node[font=\tiny] at (2.875, -0.42) {Mês};
+        % Barra de cores abaixo (horizontal)
+        \foreach \i in {0,...,8}{
+          \pgfmathsetmacro{\v}{\i*11 + 5}
+          \fill[anacblue!\v] (\i*0.635, -0.98) rectangle ++(0.60,0.28);
         }
-        \node[font=\tiny] at (0.3, 3.38) {0\%};
-        \node[font=\tiny] at (3.1, 3.38) {100\%};
-        \node[font=\tiny] at (1.5, 3.98) {\% atrasos $>$30min};
+        \node[font=\tiny, anchor=west]  at (0.00, -1.30) {0\% atrasos};
+        \node[font=\tiny, anchor=east]  at (5.715,-1.30) {100\%};
       \end{tikzpicture}
     \end{column}
-    \begin{column}{0.42\textwidth}
-      \begin{itemize}\setlength{\itemsep}{6pt}
+    \begin{column}{0.43\textwidth}
+      \begin{itemize}\setlength{\itemsep}{7pt}
         \item Célula = mês $\times$ ano no SBPA
-        \item Cor mais escura = mais atrasos
-        \item 2024 visivelmente atípico
+        \item Cor mais escura = maior \% atrasos $>$30 min
+        \item 2024 (abr--ago) visivelmente atípico
       \end{itemize}
       \medskip
-      \textbf{Responde:} os atrasos de 2024 foram consequência das enchentes ou o SBPA já mostrava piora antes do evento?\\[6pt]
-      \textbf{Dados:} \texttt{atrasos/*/anexo\_ii.csv}
+      \textbf{Responde:} os atrasos de 2024 foram consequência das enchentes ou o SBPA já mostrava piora antes do evento?
+      \medskip\\
+      \footnotesize\textbf{Dados:} \texttt{atrasos/*/anexo\_ii.csv}
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}{\textbf{Viz 4 — Market Share e Pontualidade}}
-  \begin{columns}[T]
-    \begin{column}{0.62\textwidth}
+% ── Viz 4 ────────────────────────────────────────────────────────────────────
+\begin{frame}[t]{Viz 4 --- Market Share e Pontualidade}
+  \begin{columns}[c]
+    \begin{column}{0.58\textwidth}
+      \centering
       \begin{tikzpicture}
         \begin{axis}[
-          width=8.8cm, height=5.6cm,
-          xlabel={\textit{Market share (\%)}},
-          ylabel={\textit{Pontualidade (\%)}},
+          width=7.6cm, height=4.2cm,
+          scale only axis,
+          xlabel={\footnotesize\textit{Market share (\%)}},
+          ylabel={\footnotesize\textit{Pontualidade (\%)}},
           xmin=-2, xmax=56,
           ymin=82, ymax=97,
           grid=none,
           tick label style={font=\tiny},
-          label style={font=\small},
+          label style={font=\footnotesize},
           xtick={0,10,20,30,40,50},
-          ytick={83,85,87,89,91,93,95,97},
-          axis on top=false,
+          ytick={83,86,89,92,95},
+          axis line style={draw=gray!60},
           clip=false,
         ]
-          % --- fundos dos quadrantes (opacity=0.08) ---
-          % sup. esq.: baixo share, alta pontualidade → amber
-          \fill[passaredoamber, opacity=0.08]
+          % Quadrantes (fundos)
+          \fill[passaredoamber, opacity=0.07]
             (axis cs:-2,89.2) rectangle (axis cs:19.6,97);
-          % inf. dir.: alto share, baixa pontualidade → azul
-          \fill[latamblue, opacity=0.08]
+          \fill[latamblue, opacity=0.07]
             (axis cs:19.6,82) rectangle (axis cs:56,89.2);
+          % Linhas de quadrante
+          \draw[dashed, gray!45, thin]
+            (axis cs:19.6,82) -- (axis cs:19.6,97);
+          \draw[dashed, gray!45, thin]
+            (axis cs:-2,89.2) -- (axis cs:56,89.2);
+          % Rótulos de quadrante
+          \node[font=\tiny\color{gray!70}, align=center] at (axis cs:8,96.0)
+            {pontual\\+ nicho};
+          \node[font=\tiny\color{gray!70}, align=center] at (axis cs:38,96.0)
+            {pontual\\+ dominante};
+          \node[font=\tiny\color{gray!70}, align=center] at (axis cs:8,83.2)
+            {impont.\\+ nicho};
+          \node[font=\tiny\color{gray!70}, align=center] at (axis cs:38,83.2)
+            {impont.\\+ dominante};
+          % Pontos
+          \addplot[only marks, mark=*, mark size=4.5pt,
+                   draw=latamblue, fill=latamblue]
+            coordinates {(42,91)};
+          \node[font=\tiny, right=2pt] at (axis cs:42,91) {LATAM};
 
-          % --- linhas de quadrante (médias) ---
-          \draw[dashed, gray!50, thin] (axis cs:19.6,82) -- (axis cs:19.6,97);
-          \draw[dashed, gray!50, thin] (axis cs:-2,89.2) -- (axis cs:56,89.2);
+          \addplot[only marks, mark=*, mark size=4.5pt,
+                   draw=golgreen, fill=golgreen]
+            coordinates {(31,87)};
+          \node[font=\tiny, right=2pt] at (axis cs:31,87) {GOL};
 
-          % --- rótulos de canto ---
-          \node[font=\tiny\color{gray}, align=center] at (axis cs:8,96.2)
-            {pontual\\ + nicho};
-          \node[font=\tiny\color{gray}, align=center] at (axis cs:40,96.2)
-            {pontual\\ + dominante};
-          \node[font=\tiny\color{gray}, align=center] at (axis cs:8,83.0)
-            {impont.\\ + nicho};
-          \node[font=\tiny\color{gray}, align=center] at (axis cs:40,83.0)
-            {impont.\\ + dominante};
+          \addplot[only marks, mark=*, mark size=4.5pt,
+                   draw=azulpurple, fill=azulpurple]
+            coordinates {(19,89)};
+          \node[font=\tiny, left=2pt] at (axis cs:19,89) {AZUL};
 
-          % --- pontos ---
-          \addplot[
-            only marks,
-            mark=*,
-            mark size=4.5pt,
-            draw=latamblue, fill=latamblue,
-          ] coordinates {(42,91)};
-          \node[font=\tiny, right=3pt] at (axis cs:42,91) {LATAM};
-
-          \addplot[
-            only marks,
-            mark=*,
-            mark size=4.5pt,
-            draw=golgreen, fill=golgreen,
-          ] coordinates {(31,87)};
-          \node[font=\tiny, right=3pt] at (axis cs:31,87) {GOL};
-
-          \addplot[
-            only marks,
-            mark=*,
-            mark size=4.5pt,
-            draw=azulpurple, fill=azulpurple,
-          ] coordinates {(19,89)};
-          \node[font=\tiny, left=3pt] at (axis cs:19,89) {AZUL};
-
-          \addplot[
-            only marks,
-            mark=*,
-            mark size=6pt,
-            draw=passaredoamber, fill=passaredoamber,
-          ] coordinates {(4,94)};
-          \node[font=\tiny\bfseries\color{passaredoamber}, right=3pt]
+          \addplot[only marks, mark=*, mark size=5.5pt,
+                   draw=passaredoamber, fill=passaredoamber]
+            coordinates {(4,94)};
+          \node[font=\tiny\bfseries\color{passaredoamber}, right=2pt]
             at (axis cs:4,94) {Passaredo};
 
-          \addplot[
-            only marks,
-            mark=*,
-            mark size=3.5pt,
-            draw=othergray, fill=othergray,
-          ] coordinates {(2,85)};
-          \node[font=\tiny\color{othergray}, right=3pt] at (axis cs:2,85) {Outras};
-
+          \addplot[only marks, mark=*, mark size=3.5pt,
+                   draw=othergray, fill=othergray]
+            coordinates {(2,85)};
+          \node[font=\tiny\color{othergray}, right=2pt]
+            at (axis cs:2,85) {Outras};
         \end{axis}
       \end{tikzpicture}
     \end{column}
-    \begin{column}{0.35\textwidth}
-      \begin{itemize}\setlength{\itemsep}{6pt}
-        \item Eixo X = market share
-        \item Eixo Y = pontualidade
-        \item Quadrantes pela média
+    \begin{column}{0.39\textwidth}
+      \begin{itemize}\setlength{\itemsep}{7pt}
+        \item Eixo X = market share local
+        \item Eixo Y = pontualidade média
+        \item Quadrantes definidos pelas médias
         \item \textcolor{passaredoamber}{\textbf{Âmbar}} = destaque Passaredo
       \end{itemize}
       \medskip
-      \textbf{Responde:} a empresa dominante no SBPA entrega a melhor experiência ao passageiro?\\[6pt]
-      \textbf{Dados:} \texttt{Dados\_Estatisticos.csv}\\
+      \textbf{Responde:} a empresa dominante no SBPA entrega a melhor experiência ao passageiro?
+      \medskip\\
+      \footnotesize\textbf{Dados:} \texttt{Dados\_Estatisticos.csv}\\
       \texttt{atrasos/*/anexo\_ii.csv}
     \end{column}
   \end{columns}
@@ -415,10 +424,9 @@
 \section{Cronograma}
 % ============================================================
 
-\begin{frame}{Cronograma}
-
+\begin{frame}[t]{Cronograma}
   \footnotesize
-  \begin{tabularx}{\textwidth}{@{} c l X l @{}}
+  \begin{tabularx}{\textwidth}{@{} c l X c @{}}
     \toprule
     \textbf{Sprint} & \textbf{Período} & \textbf{Meta} & \textbf{Entrega} \\
     \midrule
@@ -435,15 +443,18 @@
       & \textbf{24/Jun} \\
     \bottomrule
   \end{tabularx}
-
-  \bigskip
-  \small\textbf{Stack:} Python 3.11 $\cdot$ Pandas $\cdot$ GeoPandas $\cdot$ Plotly $\cdot$ Jupyter
-
+  \medskip\\
+  \small\textbf{Stack:} Python 3.11 $\cdot$ Pandas $\cdot$ GeoPandas $\cdot$
+  FastAPI $\cdot$ Next.js $\cdot$ D3.js
 \end{frame}
 
-\begin{frame}{Referências}
+% ============================================================
+\section{Referências}
+% ============================================================
+
+\begin{frame}[t]{Referências}
   \footnotesize
-  \begin{itemize}\setlength{\itemsep}{10pt}
+  \begin{itemize}\setlength{\itemsep}{12pt}
     \item \textbf{Munzner, T.}
           \textit{Visualization Analysis and Design}.
           A K Peters/CRC Press, 2014.\\
@@ -456,11 +467,10 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[c]{}
   \centering
-  \vfill
-  {\Large \textbf{Obrigado!}}
-  \vfill
+  {\LARGE\textbf{Obrigado!}}\\[10pt]
+  \small\texttt{fernandosdba@gmail.com}
 \end{frame}
 
 \end{document}
