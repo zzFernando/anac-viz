@@ -68,24 +68,32 @@ function triggerDownload(href: string, filename: string) {
 }
 
 export type ChartId =
+  | "chart-hero"
   | "chart-serie"
   | "chart-heatmap"
   | "chart-scatter"
   | "chart-bar"
-  | "chart-od"
-  | "chart-routemap"
-  | "chart-3d"
-  | "chart-2d";
+  | "chart-frota-fabricantes"
+  | "chart-frota-modelos"
+  | "chart-frota-empresas"
+  | "chart-ata"
+  | "chart-ads"
+  | "chart-ocorr-fase"
+  | "chart-ocorrmap";
 
 const CHART_LABELS: Record<ChartId, string> = {
-  "chart-serie":    "serie_temporal",
-  "chart-heatmap":  "heatmap_atrasos",
-  "chart-scatter":  "scatter_market_share",
-  "chart-bar":      "top_rotas",
-  "chart-od":       "matriz_od",
-  "chart-routemap": "mapa_rotas",
-  "chart-3d":       "grafo_3d",
-  "chart-2d":       "grafo_2d",
+  "chart-hero":              "mapa_panorama",
+  "chart-serie":             "serie_temporal",
+  "chart-heatmap":           "heatmap_atrasos",
+  "chart-scatter":           "scatter_market_share",
+  "chart-bar":               "top_rotas",
+  "chart-frota-fabricantes": "frota_fabricantes",
+  "chart-frota-modelos":     "frota_modelos",
+  "chart-frota-empresas":    "frota_empresas",
+  "chart-ata":               "sdr_componentes_ata",
+  "chart-ads":               "ads_sistemas",
+  "chart-ocorr-fase":        "ocorrencias_fase",
+  "chart-ocorrmap":          "ocorrencias_mapa",
 };
 
 export async function downloadChart(chartId: ChartId): Promise<void> {
@@ -103,15 +111,11 @@ export async function downloadChart(chartId: ChartId): Promise<void> {
 
 export async function downloadAllCharts(): Promise<void> {
   const ids: ChartId[] = [
-    "chart-serie", "chart-heatmap", "chart-scatter",
-    "chart-bar", "chart-od", "chart-routemap",
+    "chart-hero", "chart-serie", "chart-bar",
+    "chart-heatmap", "chart-scatter",
+    "chart-frota-fabricantes", "chart-frota-modelos", "chart-frota-empresas",
+    "chart-ata", "chart-ads", "chart-ocorr-fase", "chart-ocorrmap",
   ];
-
-  // Gráficos canvas só se visíveis (DOM presente)
-  const canvas3d = document.getElementById("chart-3d");
-  const canvas2d = document.getElementById("chart-2d");
-  if (canvas3d?.querySelector("canvas")) ids.push("chart-3d");
-  if (canvas2d?.querySelector("canvas")) ids.push("chart-2d");
 
   for (const id of ids) {
     await downloadChart(id);

@@ -100,23 +100,74 @@ export default function ScatterD3({ data }: { data: ScatterData }) {
       .attr("stroke", "white").attr("stroke-width", 1.5)
       .attr("opacity", 0.88)
       .on("mousemove", (ev: MouseEvent, d) => {
+        const frotaLine = d.idade_frota != null
+          ? `<br>Frota: ${d.n_aeronaves} aer · ${d.idade_frota.toFixed(1)} anos`
+          : "";
+        const caLine = d.pct_ca_vigente != null
+          ? `<br>CA vigente: ${d.pct_ca_vigente.toFixed(0)}%`
+          : "";
         setTip({
           x: ev.clientX + 12, y: ev.clientY - 8,
-          html: `<b>${d.label}</b><br>Market share: ${d.market_share.toFixed(1)}%<br>Pontualidade: ${d.pontualidade.toFixed(1)}%`,
+          html: `<b>${d.label}</b><br>Market share: ${d.market_share.toFixed(1)}%<br>Pontualidade: ${d.pontualidade.toFixed(1)}%${frotaLine}${caLine}`,
         });
       })
       .on("mouseleave", () => setTip(null));
 
-    // Labels for top 5
+    // Labels para top 5 com colisão repelida (d3-force) + leader lines
+    interface LabelNode extends d3.SimulationNodeDatum {
+      x: number; y: number;        // posição corrente (vai ser atualizada pela sim)
+      px: number; py: number;      // âncora (ponto original)
+      sig: string; label: string; color: string;
+      w: number; h: number;        // bounding box aproximado
+    }
+    const labelNodes: LabelNode[] = pts
+      .filter(d => top5.has(d.sig))
+      .map(d => {
+        const cx = x(d.market_share);
+        const cy = y(d.pontualidade);
+        return {
+          x: cx, y: cy - 14,
+          px: cx, py: cy,
+          sig: d.sig, label: d.label, color: d.color,
+          w: d.label.length * 5.6 + 4,
+          h: 10,
+        };
+      });
+
+    const sim = d3.forceSimulation<LabelNode>(labelNodes)
+      .force("x",       d3.forceX<LabelNode>(n => n.px).strength(0.45))
+      .force("y",       d3.forceY<LabelNode>(n => n.py - 14).strength(0.75))
+      .force("collide", d3.forceCollide<LabelNode>(n => Math.max(n.w, 22) / 2 + 2))
+      .stop();
+    for (let i = 0; i < 140; i++) sim.tick();
+
+    // Clampa labels para dentro da área do plot
+    labelNodes.forEach(n => {
+      n.x = Math.max(n.w / 2 + 2, Math.min(iW - n.w / 2 - 2, n.x));
+      n.y = Math.max(8, Math.min(iH - 4, n.y));
+    });
+
+    // Leader lines quando o label foi deslocado pra longe da âncora
+    g.selectAll("line.leader")
+      .data(labelNodes.filter(n => Math.hypot(n.x - n.px, n.y - n.py + 8) > 16))
+      .enter().append("line")
+      .attr("class", "leader")
+      .attr("x1", n => n.px).attr("y1", n => n.py - 6)
+      .attr("x2", n => n.x ).attr("y2", n => n.y + 3)
+      .attr("stroke", n => n.color)
+      .attr("stroke-width", 0.7)
+      .attr("opacity", 0.4);
+
     g.selectAll("text.lbl")
-      .data(pts.filter(d => top5.has(d.sig)))
+      .data(labelNodes)
       .enter().append("text")
       .attr("class", "lbl")
-      .attr("x", d => x(d.market_share))
-      .attr("y", d => y(d.pontualidade) - 11)
-      .attr("text-anchor", "middle").attr("font-size", 9).attr("font-weight", 600)
-      .attr("fill", d => d.color)
-      .text(d => d.label);
+      .attr("x", n => n.x)
+      .attr("y", n => n.y)
+      .attr("text-anchor", "middle")
+      .attr("font-size", 9).attr("font-weight", 600)
+      .attr("fill", n => n.color)
+      .text(n => n.label);
   }, [data]);
 
   return (

@@ -47,6 +47,12 @@ export interface ScatterPoint {
   sig: string; label: string;
   market_share: number; pontualidade: number;
   color: string;
+  idade_frota:    number | null;
+  n_aeronaves:    number | null;
+  /** % da frota da cia com Certificado de Aeronavegabilidade vigente (snapshot RAB). */
+  pct_ca_vigente: number | null;
+  /** Modelo de aeronave dominante na frota da cia. */
+  modelo_top:     string | null;
 }
 export interface ScatterData {
   points:   ScatterPoint[];
@@ -54,18 +60,87 @@ export interface ScatterData {
   med_pont: number;
 }
 
-export interface Rota { dest: string; label: string; pax: number; pax_raw: number }
-export interface RotasData { rotas: Rota[]; unit: "K" | "M"; aeroporto: string }
+export interface FrotaFabricante { nome: string; n: number; idade_media: number }
+export interface FrotaModelo {
+  modelo:      string;
+  n:           number;
+  idade_media: number | null;
+  fabricante:  string | null;
+}
+export interface FrotaCA {
+  vigente:     number;
+  vencido:     number;
+  indefinido:  number;   // ABORDO/RESRAB/ISENTA/sem data
+  pct_vigente: number;
+}
+export interface FrotaResumo {
+  total: number;
+  idade_media: number | null;
+  idade_p50:   number | null;
+  idade_p90:   number | null;
+  pct_jato:    number;
+  ca:          FrotaCA;
+  top_fabricantes:  FrotaFabricante[];
+  top_modelos:      FrotaModelo[];
+  composicao_motor: Record<string, number>;
+}
+export interface FrotaNacional {
+  ano_ref: number;
+  transporte: FrotaResumo;
+  total:      FrotaResumo;
+}
 
-export interface NetworkNode {
-  id: string; label: string; size: number; color: string;
-  pax: number; nome: string; empresa: string;
-  betweenness?: number; degree?: number;
+// ── Segurança & Manutenção ───────────────────────────────────────────────
+export interface SdrResumo {
+  total: number;
+  ultimos_5_anos: number;
+  top_fabricantes: { nome: string; n: number }[];
+  top_modelos:     { modelo: string; n: number }[];
+  top_ata:         { ata: string; nome: string; n: number }[];
+  timeline:        { ano: number; n: number }[];
 }
-export interface NetworkLink {
-  source: string; target: string; value: number; pax: number;
+
+export interface OcorrenciaResumo {
+  total: number;
+  acidentes: number;
+  incidentes: number;
+  incidentes_graves: number;
+  lesoes_fatais: number;
+  top_tipos: { tipo: string; n: number }[];
+  por_fase:  { fase: string; n: number }[];
+  timeline:  Record<string, number | string>[];
 }
-export interface NetworkData { nodes: NetworkNode[]; links: NetworkLink[] }
+
+export interface OcorrenciaEvento {
+  lat: number; lon: number;
+  data: string; ano: number;
+  tipo: string; cls: string; fase: string;
+  muni: string; uf: string;
+  danos: string; icao: string;
+  fatais: number;
+}
+
+export interface OcorrenciasData {
+  resumo:  OcorrenciaResumo;
+  eventos: OcorrenciaEvento[];
+}
+
+export interface AdsResumo {
+  total: number;
+  vigentes: number;
+  top_fabricantes: { nome: string; n: number }[];
+  top_sistemas:    { sistema: string; n: number }[];
+  por_produto:     Record<string, number>;
+}
+
+export interface Rota { dest: string; label: string; pax: number; pax_raw: number }
+export interface RotasData {
+  rotas:     Rota[];
+  unit:      "K" | "M";
+  aeroporto: string;
+  /** Total bruto de passageiros do aeroporto no período — base do %. */
+  total_raw: number;
+}
 
 export interface Arc {
   origem: string; destino: string;
@@ -86,9 +161,3 @@ export interface RouteArcsData {
   aeroporto: string;
 }
 
-export interface ODMatrixData {
-  airports:     string[];
-  z:            number[][];
-  aeroporto:    string;
-  aeroporto_idx:number;
-}

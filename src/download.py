@@ -5,14 +5,18 @@ Datasets:
   1. Dados Estatísticos do Transporte Aéreo  (~354 MB, arquivo único)
   2. Percentuais de Atrasos e Cancelamentos  (Anexos I/II/III, 2000–2026)
   3. Aeródromos Públicos — Características Gerais  (~2.5 MB, arquivo único)
+  4. RAB — Registro Aeronáutico Brasileiro    (dados_aeronaves.csv + livro_rab.csv)
+  5. VRA — Voo Regular Ativo                  (CSV mensal, 2000–2026, ~11 MB/mês)
 
 Uso:
     python src/download.py                        # tudo (2000–2026)
-    python src/download.py --start 2016           # atrasos a partir de 2016
+    python src/download.py --start 2016           # atrasos+VRA a partir de 2016
     python src/download.py --start 2016 --end 2024
     python src/download.py --skip-producao        # pula o arquivo grande
     python src/download.py --skip-atrasos
     python src/download.py --skip-aerodromos
+    python src/download.py --skip-rab             # pula cadastro de aeronaves
+    python src/download.py --skip-vra             # pula VRA mensal (~3 GB total)
 """
 
 import argparse
@@ -56,6 +60,16 @@ SINGLE_FILES = {
         "pda_aerodromos_publicos_caracteristicas_gerais.csv",
         ROOT / "data" / "raw" / "aerodromos" / "aerodromos_caracteristicas_gerais.csv",
     ),
+    "rab": (
+        "https://sistemas.anac.gov.br/dadosabertos/"
+        "Aeronaves/RAB/dados_aeronaves.csv",
+        ROOT / "data" / "raw" / "aeronaves" / "dados_aeronaves.csv",
+    ),
+    "livro_rab": (
+        "https://sistemas.anac.gov.br/dadosabertos/"
+        "Aeronaves/Livro%20RAB/livro_rab.csv",
+        ROOT / "data" / "raw" / "aeronaves" / "livro_rab.csv",
+    ),
 }
 
 BASE_ATRASOS = (
@@ -69,6 +83,12 @@ ANEXOS = {
     "anexo_ii.csv":  "Anexo II.csv",
     "anexo_iii.csv": "Anexo III.csv",
 }
+
+BASE_VRA = (
+    "https://sistemas.anac.gov.br/dadosabertos/"
+    "Voos%20e%20opera%C3%A7%C3%B5es%20a%C3%A9reas/"
+    "Voo%20Regular%20Ativo%20(VRA)"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -190,6 +210,55 @@ def atrasos_dest(ano: int, mes: int, nome_local: str) -> Path:
     return ROOT / "data" / "raw" / "atrasos" / str(ano) / mes_str / nome_local
 
 
+def build_vra_url(ano: int, mes: int) -> str:
+    mes_str = f"{mes:02d} - {MESES_PT[mes].capitalize()}"
+    nome = f"VRA_{ano}{mes}.csv"
+    return f"{BASE_VRA}/{ano}/{quote(mes_str)}/{quote(nome)}"
+
+
+def vra_dest(ano: int, mes: int) -> Path:
+    nome = f"VRA_{ano}{mes:02d}.csv"
+    return ROOT / "data" / "raw" / "vra" / str(ano) / nome
+
+
+def download_vra(
+    start: int,
+    end: int,
+    session: requests.Session,
+    contadores: dict,
+    falhas: list,
+) -> None:
+    tasks = [
+        (ano, mes)
+        for ano in range(start, end + 1)
+        for mes in range(1, 13)
+    ]
+
+    print(f"\n[VRA] {len(tasks)} arquivos ({start}–{end})")
+
+    with tqdm(tasks, desc="  VRA", unit="arq") as pbar:
+        for ano, mes in pbar:
+            url = build_vra_url(ano, mes)
+            dest = vra_dest(ano, mes)
+            status, n_bytes = download_file(url, dest, session, stream=True, label=dest.name)
+
+            if status == "ok":
+                contadores["ok"] += 1
+                time.sleep(DELAY)
+            elif status == "skip":
+                contadores["skip"] += 1
+            else:
+                contadores["fail"] += 1
+                falhas.append(f"vra/{ano}/{mes:02d} → {status}")
+
+            pbar.set_postfix(
+                ok=contadores["ok"],
+                skip=contadores["skip"],
+                fail=contadores["fail"],
+                refresh=False,
+            )
+
+
 def download_atrasos(
     start: int,
     end: int,
@@ -245,6 +314,8 @@ def main() -> None:
     parser.add_argument("--skip-producao",   action="store_true", help="Pula o download de Dados_Estatisticos.csv")
     parser.add_argument("--skip-atrasos",    action="store_true", help="Pula o download dos Anexos I/II/III")
     parser.add_argument("--skip-aerodromos", action="store_true", help="Pula o download dos aeródromos")
+    parser.add_argument("--skip-rab",        action="store_true", help="Pula o cadastro de aeronaves (RAB)")
+    parser.add_argument("--skip-vra",        action="store_true", help="Pula o VRA mensal (Voo Regular Ativo, ~3 GB total)")
     args = parser.parse_args()
 
     if args.start > args.end:
@@ -262,8 +333,15 @@ def main() -> None:
     if not args.skip_aerodromos:
         download_single("aerodromos", session, contadores, falhas)
 
+    if not args.skip_rab:
+        download_single("rab", session, contadores, falhas)
+        download_single("livro_rab", session, contadores, falhas)
+
     if not args.skip_atrasos:
         download_atrasos(args.start, args.end, session, contadores, falhas)
+
+    if not args.skip_vra:
+        download_vra(args.start, args.end, session, contadores, falhas)
 
     _summary(contadores, falhas)
 

@@ -1,8 +1,9 @@
 import useSWR from "swr";
 import type {
   FiltersData, KPIsData, SerieData, MapaData,
-  HeatmapData, ScatterData, RotasData, NetworkData,
-  RouteArcsData, ODMatrixData,
+  HeatmapData, ScatterData, RotasData,
+  RouteArcsData, FrotaNacional,
+  SdrResumo, OcorrenciasData, AdsResumo,
 } from "./types";
 
 const fetcher = (url: string) =>
@@ -63,13 +64,6 @@ export function useTopRotas(anoIni: number, anoFim: number, aeroporto: string) {
   );
 }
 
-export function useNetwork(anoIni: number, anoFim: number) {
-  return useSWR<NetworkData>(
-    `/api/network${qs({ ano_ini: anoIni, ano_fim: anoFim })}`,
-    fetcher
-  );
-}
-
 export function useRouteArcs(anoIni: number, anoFim: number, aeroporto: string) {
   return useSWR<RouteArcsData>(
     `/api/route-arcs${qs({ ano_ini: anoIni, ano_fim: anoFim, aeroporto })}`,
@@ -77,9 +71,29 @@ export function useRouteArcs(anoIni: number, anoFim: number, aeroporto: string) 
   );
 }
 
-export function useODMatrix(anoIni: number, anoFim: number, aeroporto: string) {
-  return useSWR<ODMatrixData>(
-    `/api/od-matrix${qs({ ano_ini: anoIni, ano_fim: anoFim, aeroporto })}`,
-    fetcher
+export function useFrota() {
+  return useSWR<FrotaNacional>("/api/frota", fetcher, {
+    revalidateOnFocus: false,
+    revalidateIfStale: false,
+  });
+}
+
+export function useSdr() {
+  return useSWR<SdrResumo>("/api/sdr", fetcher, {
+    revalidateOnFocus: false, revalidateIfStale: false,
+  });
+}
+
+export function useAds() {
+  return useSWR<AdsResumo>("/api/ads", fetcher, {
+    revalidateOnFocus: false, revalidateIfStale: false,
+  });
+}
+
+export function useOcorrencias(anoIni: number, anoFim: number, aeroporto?: string) {
+  const aeroPart = aeroporto ? `&aeroporto=${aeroporto}` : "";
+  return useSWR<OcorrenciasData>(
+    `/api/ocorrencias?ano_ini=${anoIni}&ano_fim=${anoFim}${aeroPart}`,
+    fetcher,
   );
 }

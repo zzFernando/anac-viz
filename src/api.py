@@ -8,12 +8,12 @@ Uso:
 
 from __future__ import annotations
 
+import json
 import math
 import warnings
 from pathlib import Path
 from typing import Optional
 
-import networkx as nx
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, Query
@@ -36,10 +36,6 @@ CORES = {
     "VRG": "#FFA040", "ONE": "#7B2D2D", "AVI": "#A52A2A",
     "PTB": "#C89600",  "MAP": "#9467BD",
 }
-AIRLINE_COLORS = {
-    "TAM": "#E1051E", "GLO": "#FF6B00", "AZU": "#2C5CC5",
-    "VRG": "#FF8C00", "ONE": "#7B2D2D", "PTB": "#C89600",
-}
 MESES_BR = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
 ANAC_BLUE  = "#003F7F"
 ANAC_LIGHT = "#0066CC"
@@ -51,6 +47,19 @@ print("Carregando parquets…", flush=True)
 DF  = pd.read_parquet(CACHE / "stats_slim.parquet")
 DFA = pd.read_parquet(CACHE / "aerodromos.parquet")
 DFP = pd.read_parquet(CACHE / "percentuais_slim.parquet")
+DFF = pd.read_parquet(CACHE / "frota_empresas.parquet")
+FROTA_NACIONAL = json.loads((CACHE / "frota_nacional.json").read_text(encoding="utf-8"))
+
+# Datasets de segurança / manutenção (slim, pré-processados)
+SDR_RESUMO         = json.loads((CACHE / "sdr_resumo.json").read_text(encoding="utf-8"))
+OCORR_RESUMO       = json.loads((CACHE / "ocorrencias_resumo.json").read_text(encoding="utf-8"))
+ADS_RESUMO         = json.loads((CACHE / "ads_resumo.json").read_text(encoding="utf-8"))
+DFO_EVENTOS        = pd.read_parquet(CACHE / "ocorrencias_eventos.parquet")
+
+# Lookup empresa_icao → (n_aeronaves, idade_media, pct_ca_vigente, modelo_top) para uso no scatter
+_FROTA_BY_SIG = DFF.set_index("empresa_icao")[
+    ["n_aeronaves", "idade_media", "pct_ca_vigente", "modelo_top"]
+].to_dict("index")
 
 ANO_MIN = int(DF["ANO"].min())
 ANO_MAX = int(DF["ANO"].max())
@@ -326,12 +335,21 @@ def get_scatter(
     points = []
     for _, r in merged.iterrows():
         sig = r["sig"]
+        frota = _FROTA_BY_SIG.get(sig, {})
+        idade  = frota.get("idade_media")
+        n_aer  = frota.get("n_aeronaves")
+        pct_ca = frota.get("pct_ca_vigente")
+        modelo = frota.get("modelo_top")
         points.append({
             "sig": sig,
             "label": EMPRESA_LABEL.get(sig, sig),
             "market_share": round(float(r["market_share"]), 2),
             "pontualidade": round(float(r["pontualidade"]), 2),
             "color": CORES.get(sig, "#94A3B8"),
+            "idade_frota":    _safe(idade),
+            "n_aeronaves":    _safe(n_aer),
+            "pct_ca_vigente": _safe(pct_ca),
+            "modelo_top":     _safe(modelo),
         })
 
     return {
@@ -339,6 +357,41 @@ def get_scatter(
         "med_ms":   round(float(merged["market_share"].mean()), 2),
         "med_pont": round(float(merged["pontualidade"].mean()), 2),
     }
+
+
+@app.get("/api/frota")
+def get_frota():
+    """Visão nacional da frota — agregados pré-computados (ver process_aeronaves.py)."""
+    return FROTA_NACIONAL
+
+
+@app.get("/api/sdr")
+def get_sdr():
+    """Service Difficulty Reports — agregados nacionais (ver process_seguranca.py)."""
+    return SDR_RESUMO
+
+
+@app.get("/api/ocorrencias")
+def get_ocorrencias(
+    ano_ini: int = Query(2016),
+    ano_fim: int = Query(ANO_MAX),
+    aeroporto: Optional[str] = Query(None),
+):
+    """Ocorrências (CENIPA) — resumo nacional + eventos geo-localizados pro mapa."""
+    eventos = DFO_EVENTOS[(DFO_EVENTOS["ano"] >= ano_ini) & (DFO_EVENTOS["ano"] <= ano_fim)]
+    if aeroporto:
+        # Filtra por aeroporto se especificado (origem ou destino, via ICAO match)
+        eventos = eventos[eventos["icao"].str.contains(aeroporto, na=False, regex=False)]
+    return {
+        "resumo": OCORR_RESUMO,
+        "eventos": _records(eventos.head(2000)),   # cap por segurança de payload
+    }
+
+
+@app.get("/api/ads")
+def get_ads():
+    """Diretrizes de Aeronavegabilidade — agregados nacionais."""
+    return ADS_RESUMO
 
 
 @app.get("/api/top-rotas")
@@ -350,10 +403,12 @@ def get_top_rotas(
     df = _f(DF, ano_ini, ano_fim)
     df_a = df[df["AEROPORTO_DE_ORIGEM_SIGLA"] == aeroporto]
     if df_a.empty:
-        return {"rotas": [], "unit": "M", "aeroporto": aeroporto}
+        return {"rotas": [], "unit": "M", "aeroporto": aeroporto, "total_raw": 0.0}
 
+    # Top 12 — permite agrupar metrópoles e ainda manter 5 linhas
     top = (df_a.groupby("AEROPORTO_DE_DESTINO_SIGLA")["PASSAGEIROS_PAGOS"]
-           .sum().nlargest(5).reset_index())
+           .sum().nlargest(12).reset_index())
+    total_pax = float(df_a["PASSAGEIROS_PAGOS"].sum())   # base do %
     pax_max_val = float(top["PASSAGEIROS_PAGOS"].max())
     unit    = "K" if pax_max_val < 500_000 else "M"
     unit_div = 1e3 if unit == "K" else 1e6
@@ -370,77 +425,10 @@ def get_top_rotas(
             "pax": round(float(r["PASSAGEIROS_PAGOS"]) / unit_div, 2),
             "pax_raw": float(r["PASSAGEIROS_PAGOS"]),
         })
-    return {"rotas": rotas, "unit": unit, "aeroporto": aeroporto}
-
-
-@app.get("/api/network")
-def get_network(
-    ano_ini: int = Query(2016),
-    ano_fim: int = Query(ANO_MAX),
-    n_airports: int = Query(80),
-):
-    df = _f(DF, ano_ini, ano_fim)
-    top_icaos = set(
-        df.groupby("AEROPORTO_DE_ORIGEM_SIGLA")["PASSAGEIROS_PAGOS"]
-        .sum().nlargest(n_airports).index
-    )
-    od = (df.groupby(["AEROPORTO_DE_ORIGEM_SIGLA", "AEROPORTO_DE_DESTINO_SIGLA"])
-          .agg(pax=("PASSAGEIROS_PAGOS", "sum")).reset_index())
-    od = od[
-        od["AEROPORTO_DE_ORIGEM_SIGLA"].isin(top_icaos) &
-        od["AEROPORTO_DE_DESTINO_SIGLA"].isin(top_icaos) &
-        (od["pax"] > 0)
-    ].nlargest(500, "pax")
-
-    pax_by_aero  = df.groupby("AEROPORTO_DE_ORIGEM_SIGLA")["PASSAGEIROS_PAGOS"].sum()
-    pax_aero_max = float(pax_by_aero[pax_by_aero.index.isin(top_icaos)].max())
-    pax_edge_max = float(od["pax"].max()) if not od.empty else 1.0
-
-    dominant = (
-        df[df["AEROPORTO_DE_ORIGEM_SIGLA"].isin(top_icaos)]
-        .groupby(["AEROPORTO_DE_ORIGEM_SIGLA", "EMPRESA_SIGLA"])["PASSAGEIROS_PAGOS"]
-        .sum().reset_index()
-        .sort_values("PASSAGEIROS_PAGOS", ascending=False)
-        .drop_duplicates("AEROPORTO_DE_ORIGEM_SIGLA")
-        .set_index("AEROPORTO_DE_ORIGEM_SIGLA")["EMPRESA_SIGLA"]
-    )
-
-    # Build NetworkX graph for centrality metrics
-    G = nx.Graph()
-    G.add_nodes_from(top_icaos)
-    for _, r in od.iterrows():
-        src = r["AEROPORTO_DE_ORIGEM_SIGLA"]
-        tgt = r["AEROPORTO_DE_DESTINO_SIGLA"]
-        G.add_edge(src, tgt, weight=float(r["pax"]))
-
-    betweenness = nx.betweenness_centrality(G, normalized=True, weight="weight")
-    degree_map  = dict(G.degree())
-
-    nodes, links = [], []
-    for icao in top_icaos:
-        c = _AERO_COORDS.get(icao, {})
-        pax_node = float(pax_by_aero.get(icao, 0))
-        size     = round(8 + (pax_node / pax_aero_max) ** 0.5 * 32, 1)
-        emp      = dominant.get(icao, "Outros")
-        color    = AIRLINE_COLORS.get(emp, "#64748B")
-        mun, uf  = c.get("Município", ""), c.get("UF", "")
-        nodes.append({
-            "id": icao, "label": icao, "size": size, "color": color,
-            "pax": pax_node, "nome": f"{mun}/{uf}" if uf else mun,
-            "empresa": EMPRESA_LABEL.get(emp, emp),
-            "betweenness": round(betweenness.get(icao, 0.0), 4),
-            "degree": int(degree_map.get(icao, 0)),
-        })
-
-    for _, r in od.iterrows():
-        value = round(0.5 + (r["pax"] / pax_edge_max) ** 0.5 * 5, 2)
-        links.append({
-            "source": r["AEROPORTO_DE_ORIGEM_SIGLA"],
-            "target": r["AEROPORTO_DE_DESTINO_SIGLA"],
-            "value": value, "pax": float(r["pax"]),
-        })
-
-    return {"nodes": nodes, "links": links}
+    return {
+        "rotas": rotas, "unit": unit, "aeroporto": aeroporto,
+        "total_raw": total_pax,
+    }
 
 
 @app.get("/api/route-arcs")
@@ -508,32 +496,3 @@ def get_route_arcs(
     return {"arcs": arcs, "airports": airports, "aeroporto": aeroporto}
 
 
-@app.get("/api/od-matrix")
-def get_od_matrix(
-    ano_ini: int = Query(2016),
-    ano_fim: int = Query(ANO_MAX),
-    aeroporto: str = Query("SBPA"),
-):
-    df = _f(DF, ano_ini, ano_fim)
-    counts = (df["AEROPORTO_DE_ORIGEM_SIGLA"].value_counts()
-              .add(df["AEROPORTO_DE_DESTINO_SIGLA"].value_counts(), fill_value=0))
-    top15 = counts.nlargest(15).index.tolist()
-    if aeroporto in top15:
-        top15 = [aeroporto] + [a for a in top15 if a != aeroporto]
-
-    od = (df.groupby(["AEROPORTO_DE_ORIGEM_SIGLA", "AEROPORTO_DE_DESTINO_SIGLA"])
-          ["PASSAGEIROS_PAGOS"].sum().reset_index())
-    od = od[
-        od["AEROPORTO_DE_ORIGEM_SIGLA"].isin(top15) &
-        od["AEROPORTO_DE_DESTINO_SIGLA"].isin(top15)
-    ]
-    pivot = (od.pivot_table(
-        index="AEROPORTO_DE_ORIGEM_SIGLA",
-        columns="AEROPORTO_DE_DESTINO_SIGLA",
-        values="PASSAGEIROS_PAGOS", aggfunc="sum", fill_value=0
-    ).reindex(index=top15, columns=top15, fill_value=0))
-
-    z = (pivot.values / 1e6).round(2).tolist()
-    aero_idx = top15.index(aeroporto) if aeroporto in top15 else -1
-
-    return {"airports": top15, "z": z, "aeroporto": aeroporto, "aeroporto_idx": aero_idx}

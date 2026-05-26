@@ -30,6 +30,14 @@ Todas as visualizações são exportadas como HTML interativo via Plotly.
   - `data/raw/atrasos/<ano>/<MM_mes>/anexo_ii.csv` — consolidado por empresa + par de aeroportos
   - `data/raw/atrasos/<ano>/<MM_mes>/anexo_iii.csv` — consolidado por par de aeroportos
 
+- **Aeronaves (RAB — Registro Aeronáutico Brasileiro)** — [ANAC / Aeronaves / RAB](https://sistemas.anac.gov.br/dadosabertos/Aeronaves/RAB/)
+  - `data/raw/aeronaves/dados_aeronaves.csv` — snapshot da frota atual (~22 MB, 30 colunas: matrícula, modelo, fabricante, operador, motor, ano de fabricação, assentos, PMD, categoria etc.)
+  - `data/raw/aeronaves/livro_rab.csv` — histórico de matrículas (incluindo canceladas)
+
+- **VRA — Voo Regular Ativo** — [ANAC / Voo Regular Ativo](https://sistemas.anac.gov.br/dadosabertos/Voos%20e%20opera%C3%A7%C3%B5es%20a%C3%A9reas/Voo%20Regular%20Ativo%20(VRA)/)
+  - `data/raw/vra/<ano>/VRA_<aaaamm>.csv` — granularidade de voo individual (ICAO empresa, número do voo, origem/destino, partida/chegada prevista vs real, status)
+  - **Não contém matrícula de aeronave** — para cruzar voo↔aeronave é preciso outro dataset (ANAC não publica essa amarração diretamente)
+
 ---
 
 ## Estrutura do repositório
@@ -38,8 +46,11 @@ Todas as visualizações são exportadas como HTML interativo via Plotly.
 anac-viz/
 ├── data/
 │   ├── raw/
-│   │   ├── producao/         # Base_10_anos.csv (não versionado)
-│   │   └── atrasos/          # CSVs por ano/mês (não versionados)
+│   │   ├── producao/         # Dados_Estatisticos.csv (não versionado)
+│   │   ├── atrasos/          # CSVs por ano/mês (não versionados)
+│   │   ├── aerodromos/       # características gerais dos aeródromos
+│   │   ├── aeronaves/        # RAB — dados_aeronaves.csv + livro_rab.csv
+│   │   └── vra/              # Voo Regular Ativo (CSV mensal, não versionados)
 │   └── processed/            # Dados limpos e agregados
 ├── notebooks/                # Análise exploratória e protótipos
 ├── src/
