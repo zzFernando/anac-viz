@@ -1,0 +1,260 @@
+{
+  "total": 22337,
+  "ultimos_5_anos": 5888,
+  "top_fabricantes": [
+    {
+      "nome": "EMBRAER",
+      "n": 10298
+    },
+    {
+      "nome": "BOEING COMPANY",
+      "n": 4922
+    },
+    {
+      "nome": "SIKORSKY AIRCRAFT",
+      "n": 1910
+    },
+    {
+      "nome": "AIRBUS INDUSTRIE",
+      "n": 999
+    },
+    {
+      "nome": "AEROSPATIALE AND A",
+      "n": 769
+    },
+    {
+      "nome": "AIRBUS S.A.S.",
+      "n": 606
+    },
+    {
+      "nome": "LEONARDO S.P.A",
+      "n": 349
+    },
+    {
+      "nome": "ATR - GIE AVIONS D",
+      "n": 306
+    }
+  ],
+  "top_modelos": [
+    {
+      "modelo": "EMB-145LR",
+      "n": 3157
+    },
+    {
+      "modelo": "S-76C",
+      "n": 1082
+    },
+    {
+      "modelo": "737-8EH",
+      "n": 953
+    },
+    {
+      "modelo": "ATR-72-212A",
+      "n": 728
+    },
+    {
+      "modelo": "ERJ 190-200 LR",
+      "n": 699
+    },
+    {
+      "modelo": "EMB-135LR",
+      "n": 678
+    },
+    {
+      "modelo": "737-400 SERIES",
+      "n": 607
+    },
+    {
+      "modelo": "EMB-120ER",
+      "n": 591
+    },
+    {
+      "modelo": "AW139",
+      "n": 565
+    },
+    {
+      "modelo": "EMB-145ER",
+      "n": 528
+    }
+  ],
+  "top_ata": [
+    {
+      "ata": "32",
+      "nome": "Trem de pouso",
+      "n": 2091
+    },
+    {
+      "ata": "27",
+      "nome": "Controles de voo",
+      "n": 1919
+    },
+    {
+      "ata": "72",
+      "nome": "Motor",
+      "n": 1504
+    },
+    {
+      "ata": "21",
+      "nome": "Ar condicionado",
+      "n": 1409
+    },
+    {
+      "ata": "34",
+      "nome": "Navegação",
+      "n": 907
+    },
+    {
+      "ata": "36",
+      "nome": "Pneumático",
+      "n": 748
+    },
+    {
+      "ata": "26",
+      "nome": "Proteção contra fogo",
+      "n": 677
+    },
+    {
+      "ata": "24",
+      "nome": "Energia elétrica",
+      "n": 671
+    },
+    {
+      "ata": "73",
+      "nome": "Comb. motor",
+      "n": 630
+    },
+    {
+      "ata": "33",
+      "nome": "Iluminação",
+      "n": 601
+    },
+    {
+      "ata": "79",
+      "nome": "Óleo motor",
+      "n": 544
+    },
+    {
+      "ata": "52",
+      "nome": "Portas",
+      "n": 529
+    }
+  ],
+  "timeline": [
+    {
+      "ano": 1993,
+      "n": 2
+    },
+    {
+      "ano": 1994,
+      "n": 1
+    },
+    {
+      "ano": 1998,
+      "n": 1
+    },
+    {
+      "ano": 2000,
+      "n": 379
+    },
+    {
+      "ano": 2001,
+      "n": 733
+    },
+    {
+      "ano": 2002,
+      "n": 1492
+    },
+    {
+      "ano": 2003,
+      "n": 948
+    },
+    {
+      "ano": 2004,
+      "n": 1027
+    },
+    {
+      "ano": 2005,
+      "n": 1231
+    },
+    {
+      "ano": 2006,
+      "n": 1174
+    },
+    {
+      "ano": 2007,
+      "n": 773
+    },
+    {
+      "ano": 2008,
+      "n": 354
+    },
+    {
+      "ano": 2009,
+      "n": 510
+    },
+    {
+      "ano": 2010,
+      "n": 1209
+    },
+    {
+      "ano": 2011,
+      "n": 999
+    },
+    {
+      "ano": 2012,
+      "n": 586
+    },
+    {
+      "ano": 2013,
+      "n": 626
+    },
+    {
+      "ano": 2014,
+      "n": 625
+    },
+    {
+      "ano": 2015,
+      "n": 554
+    },
+    {
+      "ano": 2016,
+      "n": 527
+    },
+    {
+      "ano": 2017,
+      "n": 476
+    },
+    {
+      "ano": 2018,
+      "n": 545
+    },
+    {
+      "ano": 2019,
+      "n": 1047
+    },
+    {
+      "ano": 2020,
+      "n": 630
+    },
+    {
+      "ano": 2021,
+      "n": 883
+    },
+    {
+      "ano": 2022,
+      "n": 898
+    },
+    {
+      "ano": 2023,
+      "n": 972
+    },
+    {
+      "ano": 2024,
+      "n": 2326
+    },
+    {
+      "ano": 2025,
+      "n": 809
+    }
+  ]
+}

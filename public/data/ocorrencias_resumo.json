@@ -1,0 +1,245 @@
+{
+  "total": 5021,
+  "acidentes": 3704,
+  "incidentes": 0,
+  "incidentes_graves": 1317,
+  "lesoes_fatais": 2123,
+  "top_tipos": [
+    {
+      "tipo": "FALHA OU MAU FUNCIONAMENTO DO MOTOR",
+      "n": 782
+    },
+    {
+      "tipo": "EXCURSÃO DE PISTA",
+      "n": 653
+    },
+    {
+      "tipo": "DESCONHECIDO",
+      "n": 642
+    },
+    {
+      "tipo": "PERDA DE CONTROLE EM VOO",
+      "n": 534
+    },
+    {
+      "tipo": "PERDA DE CONTROLE NO SOLO",
+      "n": 476
+    },
+    {
+      "tipo": "FALHA OU MAU FUNCIONAMENTO DE SISTEMA / COMPONENTE",
+      "n": 454
+    },
+    {
+      "tipo": "OUTROS",
+      "n": 268
+    },
+    {
+      "tipo": "COLISÃO COM OBSTÁCULO DURANTE A DECOLAGEM E POUSO",
+      "n": 219
+    },
+    {
+      "tipo": "CONTATO ANORMAL COM A PISTA",
+      "n": 193
+    },
+    {
+      "tipo": "INDETERMINADO",
+      "n": 176
+    }
+  ],
+  "por_fase": [
+    {
+      "fase": "DESCONHECIDA",
+      "n": 1300
+    },
+    {
+      "fase": "Pouso",
+      "n": 781
+    },
+    {
+      "fase": "Decolagem",
+      "n": 630
+    },
+    {
+      "fase": "Corrida após pouso",
+      "n": 505
+    },
+    {
+      "fase": "Em rota",
+      "n": 355
+    },
+    {
+      "fase": "Manobra",
+      "n": 273
+    },
+    {
+      "fase": "Cruzeiro",
+      "n": 184
+    },
+    {
+      "fase": "Subida",
+      "n": 165
+    },
+    {
+      "fase": "Aproximação",
+      "n": 146
+    },
+    {
+      "fase": "Especializada",
+      "n": 139
+    }
+  ],
+  "timeline": [
+    {
+      "ano": 1959,
+      "acidente": 1
+    },
+    {
+      "ano": 1979,
+      "acidente": 1
+    },
+    {
+      "ano": 1981,
+      "acidente": 2
+    },
+    {
+      "ano": 1989,
+      "acidente": 1
+    },
+    {
+      "ano": 1996,
+      "acidente": 1
+    },
+    {
+      "ano": 1997,
+      "acidente": 3
+    },
+    {
+      "ano": 1998,
+      "acidente": 4
+    },
+    {
+      "ano": 1999,
+      "acidente": 50
+    },
+    {
+      "ano": 2000,
+      "acidente": 58
+    },
+    {
+      "ano": 2001,
+      "acidente": 79
+    },
+    {
+      "ano": 2002,
+      "acidente": 66
+    },
+    {
+      "ano": 2003,
+      "acidente": 74
+    },
+    {
+      "ano": 2004,
+      "acidente": 63
+    },
+    {
+      "ano": 2005,
+      "acidente": 60,
+      "incidente_grave": 1
+    },
+    {
+      "ano": 2006,
+      "acidente": 74,
+      "incidente_grave": 3
+    },
+    {
+      "ano": 2007,
+      "acidente": 104,
+      "incidente_grave": 4
+    },
+    {
+      "ano": 2008,
+      "acidente": 118,
+      "incidente_grave": 12
+    },
+    {
+      "ano": 2009,
+      "acidente": 123,
+      "incidente_grave": 17
+    },
+    {
+      "ano": 2010,
+      "acidente": 141,
+      "incidente_grave": 78
+    },
+    {
+      "ano": 2011,
+      "acidente": 207,
+      "incidente_grave": 76
+    },
+    {
+      "ano": 2012,
+      "acidente": 226,
+      "incidente_grave": 98
+    },
+    {
+      "ano": 2013,
+      "acidente": 217,
+      "incidente_grave": 80
+    },
+    {
+      "ano": 2014,
+      "acidente": 193,
+      "incidente_grave": 95
+    },
+    {
+      "ano": 2015,
+      "acidente": 192,
+      "incidente_grave": 61
+    },
+    {
+      "ano": 2016,
+      "acidente": 203,
+      "incidente_grave": 63
+    },
+    {
+      "ano": 2017,
+      "acidente": 157,
+      "incidente_grave": 57
+    },
+    {
+      "ano": 2018,
+      "acidente": 192,
+      "incidente_grave": 108
+    },
+    {
+      "ano": 2019,
+      "acidente": 178,
+      "incidente_grave": 93
+    },
+    {
+      "ano": 2020,
+      "acidente": 177,
+      "incidente_grave": 96
+    },
+    {
+      "ano": 2021,
+      "acidente": 186,
+      "incidente_grave": 104
+    },
+    {
+      "ano": 2022,
+      "acidente": 200,
+      "incidente_grave": 132
+    },
+    {
+      "ano": 2023,
+      "acidente": 223,
+      "incidente_grave": 91
+    },
+    {
+      "ano": 2024,
+      "acidente": 130,
+      "incidente_grave": 48
+    }
+  ]
+}

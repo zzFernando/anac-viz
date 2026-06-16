@@ -1,107 +1,75 @@
-# Panorama da Aviação Doméstica Brasileira
+# Panorama da Aviacao Domestica Brasileira
 
-Projeto de mestrado em Ciência da Computação (foco em IA) — análise exploratória e visualização interativa da aviação doméstica brasileira com dados abertos da ANAC (2016–2026).
+Dashboard estatico sobre a aviacao domestica brasileira com dados abertos da
+ANAC. O app e um projeto Next.js exportado como arquivos estaticos e publicado
+no Firebase Hosting.
 
-**Persona:** Carla Mendes, gestora de operações do Aeroporto Salgado Filho (POA), usando os painéis para identificar padrões operacionais e comparar com a média nacional.
+Nao ha backend no runtime. Os dados consolidados ficam em `public/data/` e sao
+carregados diretamente pelo navegador.
 
----
+## Estrutura
 
-## Visualizações
-
-| # | Tipo | Descrição |
-|---|------|-----------|
-| 1 | Mapa coroplético | Passageiros e decolagens por aeroporto no Brasil |
-| 2 | Série temporal | Evolução mensal do setor — passageiros, decolagens, impacto COVID |
-| 3 | Heatmap | Concentração de atrasos por hora × dia da semana |
-| 4 | Barras comparativas | Market share e pontualidade por companhia aérea |
-
-Todas as visualizações são exportadas como HTML interativo via Plotly.
-
----
-
-## Fontes de dados
-
-- **Produção aeronáutica** — [ANAC / Dados de Produção](https://sistemas.anac.gov.br/dadosabertos/Voos%20e%20opera%C3%A7%C3%B5es%20a%C3%A9reas/Produ%C3%A7%C3%A3o%20Aeronautica/)
-  - `data/raw/producao/Base_10_anos.csv` — 372 mil linhas, encoding `latin1`, separador `;`
-  - Colunas: empresa, ano, mês, aeroporto origem/destino, natureza, passageiros, carga, ASK, RPK, ATK, RTK, combustível, distância, decolagens, horas voadas, bagagem
-
-- **Atrasos e cancelamentos** — [ANAC / Percentuais de Atrasos](https://sistemas.anac.gov.br/dadosabertos/Voos%20e%20opera%C3%A7%C3%B5es%20a%C3%A9reas/Percentuais%20de%20atrasos%20e%20cancelamentos/)
-  - `data/raw/atrasos/<ano>/<MM_mes>/anexo_i.csv` — etapa individual de voo
-  - `data/raw/atrasos/<ano>/<MM_mes>/anexo_ii.csv` — consolidado por empresa + par de aeroportos
-  - `data/raw/atrasos/<ano>/<MM_mes>/anexo_iii.csv` — consolidado por par de aeroportos
-
-- **Aeronaves (RAB — Registro Aeronáutico Brasileiro)** — [ANAC / Aeronaves / RAB](https://sistemas.anac.gov.br/dadosabertos/Aeronaves/RAB/)
-  - `data/raw/aeronaves/dados_aeronaves.csv` — snapshot da frota atual (~22 MB, 30 colunas: matrícula, modelo, fabricante, operador, motor, ano de fabricação, assentos, PMD, categoria etc.)
-  - `data/raw/aeronaves/livro_rab.csv` — histórico de matrículas (incluindo canceladas)
-
-- **VRA — Voo Regular Ativo** — [ANAC / Voo Regular Ativo](https://sistemas.anac.gov.br/dadosabertos/Voos%20e%20opera%C3%A7%C3%B5es%20a%C3%A9reas/Voo%20Regular%20Ativo%20(VRA)/)
-  - `data/raw/vra/<ano>/VRA_<aaaamm>.csv` — granularidade de voo individual (ICAO empresa, número do voo, origem/destino, partida/chegada prevista vs real, status)
-  - **Não contém matrícula de aeronave** — para cruzar voo↔aeronave é preciso outro dataset (ANAC não publica essa amarração diretamente)
-
----
-
-## Estrutura do repositório
-
-```
+```text
 anac-viz/
-├── data/
-│   ├── raw/
-│   │   ├── producao/         # Dados_Estatisticos.csv (não versionado)
-│   │   ├── atrasos/          # CSVs por ano/mês (não versionados)
-│   │   ├── aerodromos/       # características gerais dos aeródromos
-│   │   ├── aeronaves/        # RAB — dados_aeronaves.csv + livro_rab.csv
-│   │   └── vra/              # Voo Regular Ativo (CSV mensal, não versionados)
-│   └── processed/            # Dados limpos e agregados
-├── notebooks/                # Análise exploratória e protótipos
-├── src/
-│   └── download.py           # Script de download dos dados ANAC
-├── viz/                      # HTMLs interativos exportados
-├── slides/                   # Apresentações
-├── .gitignore
-├── requirements.txt
+├── public/data/          # JSONs consolidados usados pelo dashboard
+├── src/app/              # Pagina e layout
+├── src/components/       # Graficos, mapas e UI
+├── src/lib/              # Carga dos dados, tipos e agregacoes
+├── firebase.json         # Publica out/
+├── .firebaserc           # Projeto Firebase
+├── package.json
+├── next.config.mjs       # output: "export"
+├── start.sh              # Atalho para desenvolvimento local
 └── README.md
 ```
 
-> Os arquivos `data/` não são versionados. Use `src/download.py` para obter os dados.
-
----
-
-## Instalação
+## Rodar Localmente
 
 ```bash
-# Clone o repositório
-git clone <url>
-cd anac-viz
-
-# Crie e ative o ambiente virtual
-python -m venv .venv
-source .venv/bin/activate   # Linux/macOS
-# .venv\Scripts\activate    # Windows
-
-# Instale as dependências
-pip install -r requirements.txt
-
-# Baixe os dados de atrasos (2016–2026)
-python src/download.py
-
-# Coloque Base_10_anos.csv em data/raw/producao/ manualmente
+npm install
+npm run dev
 ```
 
----
+Abra:
 
-## Uso
+```text
+http://localhost:3000
+```
+
+Tambem pode usar:
 
 ```bash
-# Inicie o Jupyter
-jupyter notebook notebooks/
+./start.sh
 ```
 
----
+## Build
 
-## Stack
+```bash
+npm run build
+```
 
-- Python 3.11+
-- Pandas, NumPy
-- Plotly (visualizações interativas + exportação HTML)
-- GeoPandas (mapa coroplético)
-- Jupyter Notebook
+O build gera `out/`.
+
+## Deploy
+
+```bash
+firebase deploy
+```
+
+O Firebase Hosting esta configurado para publicar `out/`.
+
+## Dados
+
+O dashboard depende destes arquivos em `public/data/`:
+
+- `stats.json`
+- `percentuais.json`
+- `aerodromos.json`
+- `frota_nacional.json`
+- `frota_empresas.json`
+- `sdr_resumo.json`
+- `ads_resumo.json`
+- `ocorrencias_resumo.json`
+- `ocorrencias_eventos.json`
+
+Esses arquivos sao os consolidados necessarios para a aplicacao funcionar.

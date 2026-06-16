@@ -1,0 +1,104 @@
+{
+  "total": 12164,
+  "vigentes": 6555,
+  "top_fabricantes": [
+    {
+      "nome": "EMBRAER S.A. - UNIDADE EGM",
+      "n": 3152
+    },
+    {
+      "nome": "INDÚSTRIA AERONÁUTICA NEIVA S/A",
+      "n": 762
+    },
+    {
+      "nome": "LYCOMING ENGINES, AVCO CORPORATION",
+      "n": 754
+    },
+    {
+      "nome": "PIPER AIRCRAFT, INC., THE NEW",
+      "n": 497
+    },
+    {
+      "nome": "TELEDYNE CONTINENTAL MOTORS",
+      "n": 158
+    },
+    {
+      "nome": "BEECHCRAFT CORPORATION",
+      "n": 134
+    },
+    {
+      "nome": "HELICÓPTEROS DO BRASIL S/A",
+      "n": 117
+    },
+    {
+      "nome": "BOEING AIRPLANE COMPANY",
+      "n": 101
+    },
+    {
+      "nome": "AIRBUS SAS",
+      "n": 101
+    },
+    {
+      "nome": "PRATT & WHITNEY CANADA, INC",
+      "n": 100
+    }
+  ],
+  "top_sistemas": [
+    {
+      "sistema": "BALANCINS",
+      "n": 372
+    },
+    {
+      "sistema": "PILOTO AUTOMÁTICO BENDIX",
+      "n": 134
+    },
+    {
+      "sistema": "PARAFUSOS TAMPA BOMBAS DE COMBUSTÍVEL",
+      "n": 132
+    },
+    {
+      "sistema": "GERADOR QUÍMICO DE OXIGÊNIO",
+      "n": 121
+    },
+    {
+      "sistema": "ASSENTOS E SISTEMAS DE ASSENTOS",
+      "n": 121
+    },
+    {
+      "sistema": "VÁLVULA TERMOSTÁTICA",
+      "n": 119
+    },
+    {
+      "sistema": "PARTES NÃO APROVADAS",
+      "n": 92
+    },
+    {
+      "sistema": "EIXO COMANDO ENGRENAGEM BOMBA DE ÓLEO",
+      "n": 76
+    },
+    {
+      "sistema": "EIXOS DE MANIVELA DOS MOTORES",
+      "n": 65
+    },
+    {
+      "sistema": "MAGNETOS",
+      "n": 60
+    },
+    {
+      "sistema": "PINOS DO PISTÃO DOS MOTORES",
+      "n": 50
+    },
+    {
+      "sistema": "PILOTO AUTOMÁTICO",
+      "n": 49
+    }
+  ],
+  "por_produto": {
+    "Avião": 4464,
+    "Motor Aeronáutico": 1147,
+    "Componente": 508,
+    "Helicóptero": 233,
+    "Hélice": 142,
+    "Planador / Motoplanador": 61
+  }
+}
