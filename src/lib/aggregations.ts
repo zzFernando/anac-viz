@@ -59,9 +59,12 @@ function groupSumByDate(idx: number[], ds: Dataset): { dates: string[]; sums: nu
 export function getFilters(ds: Dataset): FiltersData {
   const aeroportos = [...ds.pax120].sort().map((icao) => {
     const info = ds.aeroCoords.get(icao);
-    const mun = info?.municipio ?? "";
+    const cidade = info?.municipio ?? "";
     const uf = info?.uf ?? "";
-    return { value: icao, label: mun ? `${icao} — ${mun}/${uf}` : icao };
+    const nome = info?.nome ?? "";
+    const label = [icao, uf, cidade, nome].filter(Boolean).join(" · ");
+
+    return { value: icao, label, icao, uf, cidade, nome };
   });
   return { ano_min: ds.anoMin, ano_max: ds.anoMax, aeroportos };
 }

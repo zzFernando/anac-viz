@@ -1,7 +1,14 @@
 export interface FiltersData {
   ano_min: number;
   ano_max: number;
-  aeroportos: { value: string; label: string }[];
+  aeroportos: {
+    value: string;
+    label: string;
+    icao: string;
+    uf: string;
+    cidade: string;
+    nome: string;
+  }[];
 }
 
 export interface KPIsData {
@@ -160,4 +167,3 @@ export interface RouteArcsData {
   airports:  AirportNode[];
   aeroporto: string;
 }
-
