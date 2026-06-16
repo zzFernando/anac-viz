@@ -111,11 +111,11 @@ export default function OcorrenciasMap({ eventos, mode: modeExt, height = 460 }:
       <div ref={mapRef} className="absolute inset-0" />
 
       <div className="absolute top-3 left-3 z-10 bg-black/70 backdrop-blur-md border border-white/15 rounded px-3 py-2 max-w-[280px] pointer-events-none">
-        <div className="text-white text-sm font-semibold leading-tight">Ocorrências CENIPA</div>
+        <div className="text-white text-sm font-semibold leading-tight">Ocorrências investigadas</div>
         <div className="text-[10px] uppercase tracking-[0.14em] text-gray-400 mt-0.5">
-          {fmt(stats.acid)} acidentes · {fmt(stats.grav)} graves
+          {fmt(stats.acid)} acidentes · {fmt(stats.grav)} incidentes graves
           {stats.inc > 0 && <> · {fmt(stats.inc)} incidentes</>}
-          {stats.fat > 0 && <> · {fmt(stats.fat)} fatais</>}
+          {stats.fat > 0 && <> · {fmt(stats.fat)} fatalidades</>}
         </div>
       </div>
 
@@ -125,7 +125,7 @@ export default function OcorrenciasMap({ eventos, mode: modeExt, height = 460 }:
             <button key={id} onClick={() => setModeInt(id)}
               className={`px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider transition-colors
                 ${mode === id ? "bg-[#f4a04b] text-black" : "text-gray-300 hover:bg-white/10"}`}>
-              {id === "pontos" ? "Pontos" : "Calor"}
+              {id === "pontos" ? "Pontos" : "Concentração"}
             </button>
           ))}
         </div>
@@ -135,7 +135,7 @@ export default function OcorrenciasMap({ eventos, mode: modeExt, height = 460 }:
         <div className="absolute bottom-3 left-3 z-10 bg-black/70 backdrop-blur-md border border-white/15 rounded px-3 py-2 pointer-events-none">
           <div className="text-[9px] uppercase tracking-[0.14em] text-gray-400 mb-1.5">Classificação</div>
           <div className="space-y-0.5">
-            {[["Acidente", COR_ACIDENTE], ["Incidente Grave", COR_GRAVE], ["Incidente", COR_INC]].map(([label, c]) => {
+            {[["Acidente", COR_ACIDENTE], ["Incidente grave", COR_GRAVE], ["Incidente", COR_INC]].map(([label, c]) => {
               const col = c as [number, number, number];
               return (
                 <div key={label as string} className="flex items-center gap-2 text-[10px] text-gray-200">
@@ -179,7 +179,7 @@ function buildLayers(eventos: OcorrenciaEvento[], mode: Mode, setTip: ((t: Tip |
         const o = info.object as OcorrenciaEvento | undefined;
         if (o && setTip && info.x != null) {
           const tipoCurto = (o.tipo || "").slice(0, 60);
-          const fatLine = o.fatais ? `<br><span style="color:#f48b8b">${o.fatais} fatais</span>` : "";
+          const fatLine = o.fatais ? `<br><span style="color:#f48b8b">${o.fatais} fatalidades</span>` : "";
           setTip({
             x: info.x + 14, y: info.y - 8,
             html: `<b>${o.cls}</b> · ${o.data}<br>${o.muni}/${o.uf}${o.icao ? " · " + o.icao : ""}<br><span style="color:#a8a4b8">${tipoCurto}</span>${fatLine}<br><span style="color:#a8a4b8">${o.fase}</span>`,

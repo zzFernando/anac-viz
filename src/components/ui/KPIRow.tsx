@@ -1,24 +1,29 @@
 import KPICard from "./KPICard";
 import Sparkline, { type SparkPoint } from "@/components/charts/Sparkline";
 import ShareBar  from "@/components/charts/ShareBar";
-import type { KPIsData, SerieData, ScatterData } from "@/lib/types";
+import type { KPIsData, SerieData, ScatterData, RotasData, Rota } from "@/lib/types";
 import { eventsForAirport } from "@/lib/events";
 
 const GOLD       = "#C89600";
 const ANAC_BLUE  = "#003F7F";
 const ANAC_LIGHT = "#0066CC";
-const SUCCESS    = "#16A34A";
-const DANGER     = "#DC2626";
+const CONNECTION = "#16A34A";
+
+const METRO_GROUPS: { key: string; name: string; airports: string[] }[] = [
+  { key: "GSP", name: "Grande São Paulo",      airports: ["SBGR", "SBSP", "SBKP"] },
+  { key: "GRJ", name: "Grande Rio de Janeiro", airports: ["SBGL", "SBRJ", "SBJR"] },
+];
 
 interface Props {
   kpis:       KPIsData | undefined;
   serie?:     SerieData | undefined;
   scatter?:   ScatterData | undefined;
+  rotas?:     RotasData | undefined;
   aeroporto?: string;
   layout?:    "grid" | "column";
 }
 
-export default function KPIRow({ kpis, serie, scatter, aeroporto, layout = "grid" }: Props) {
+export default function KPIRow({ kpis, serie, scatter, rotas, aeroporto, layout = "grid" }: Props) {
   // Sparkline dos últimos 24 meses do aeroporto, com data + valor pra ancorar eventos
   const sparkData: SparkPoint[] = (serie?.aeroporto?.slice(-24) ?? [])
     .filter(p => p.pax != null)
@@ -31,51 +36,46 @@ export default function KPIRow({ kpis, serie, scatter, aeroporto, layout = "grid
         color: ev.color,
       }))
     : [];
+  const connection = buildConnectionSummary(rotas);
 
   if (layout === "grid") {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <KPICard
-          label={kpis ? `Passageiros em ${kpis.nome}` : "Passageiros"}
+          label={kpis ? `Passageiros no aeroporto — ${kpis.nome}` : "Passageiros no aeroporto"}
           value={kpis?.pax.value ?? "—"}
           sub={kpis?.pax.sub ?? ""}
           icon="✈"
           accent={ANAC_BLUE}
         />
         <KPICard
-          label="Variação (YTD)"
-          value={kpis?.variacao.value ?? "—"}
-          sub={kpis?.variacao.sub ?? ""}
-          icon="📈"
-          accent={kpis?.variacao.positive ? SUCCESS : DANGER}
-        />
-        <KPICard
-          label="Empresa líder no período"
+          label="Empresa com mais passageiros"
           value={kpis?.lider.value ?? "—"}
           sub={kpis?.lider.sub ?? ""}
-          tooltip="Empresa com mais passageiros pagos no aeroporto durante o período filtrado. Muda conforme você ajusta os anos."
+          tooltip="Companhia que transportou mais passageiros pagos no aeroporto durante o período escolhido."
           icon="🏢"
           accent={GOLD}
         />
         <KPICard
-          label="Pontualidade no aeroporto"
+          label="Voos no horário"
           value={kpis?.pontualidade.value ?? "—"}
           sub={kpis?.pontualidade.sub ?? ""}
-          tooltip="Pontualidade média de partidas de TODAS as companhias operando no aeroporto, no período filtrado. Base: % de voos com atraso ≤ 30 min entre partida programada e real."
+          tooltip="Percentual de partidas com até 30 minutos de atraso no aeroporto escolhido."
           icon="🕐"
           accent={ANAC_LIGHT}
         />
+        <ConnectionCard connection={connection} />
       </div>
     );
   }
 
-  // layout "column" — KPI herói no topo + 3 secundários
+  // layout "column" — KPI herói no topo + secundários
   return (
     <div className="flex flex-col gap-2">
       {/* HERO */}
       <KPICard
         size="hero"
-        label={kpis ? `Passageiros em ${kpis.nome}` : "Passageiros"}
+        label={kpis ? `Passageiros no aeroporto — ${kpis.nome}` : "Passageiros no aeroporto"}
         value={kpis?.pax.value ?? "—"}
         sub={kpis?.pax.sub ?? ""}
         icon="✈"
@@ -88,7 +88,7 @@ export default function KPIRow({ kpis, serie, scatter, aeroporto, layout = "grid
               últimos 24 meses
               {sparkEvents.length > 0 && (
                 <span className="ml-1.5 normal-case tracking-normal">
-                  · marcadores: {sparkEvents.map(e => e.label).join(", ")}
+                  · eventos: {sparkEvents.map(e => e.label).join(", ")}
                 </span>
               )}
             </div>
@@ -96,21 +96,12 @@ export default function KPIRow({ kpis, serie, scatter, aeroporto, layout = "grid
         )}
       </KPICard>
 
-      {/* Variação YTD */}
-      <KPICard
-        label="Variação (YTD)"
-        value={kpis?.variacao.value ?? "—"}
-        sub={kpis?.variacao.sub ?? ""}
-        icon="📈"
-        accent={kpis?.variacao.positive ? SUCCESS : DANGER}
-      />
-
       {/* Empresa líder no período + mini stacked bar */}
       <KPICard
-        label="Empresa líder no período"
+        label="Empresa com mais passageiros"
         value={kpis?.lider.value ?? "—"}
         sub={kpis?.lider.sub ?? ""}
-        tooltip="Empresa com mais passageiros pagos no aeroporto durante o período filtrado. Muda conforme você ajusta os anos."
+        tooltip="Companhia que transportou mais passageiros pagos no aeroporto durante o período escolhido."
         icon="🏢"
         accent={GOLD}
       >
@@ -119,13 +110,115 @@ export default function KPIRow({ kpis, serie, scatter, aeroporto, layout = "grid
 
       {/* Pontualidade */}
       <KPICard
-        label="Pontualidade no aeroporto"
+        label="Voos no horário"
         value={kpis?.pontualidade.value ?? "—"}
         sub={kpis?.pontualidade.sub ?? ""}
-        tooltip="Pontualidade média de partidas de TODAS as companhias operando no aeroporto, no período filtrado. Base: % de voos com atraso ≤ 30 min entre partida programada e real."
+        tooltip="Percentual de partidas com até 30 minutos de atraso no aeroporto escolhido."
         icon="🕐"
         accent={ANAC_LIGHT}
       />
+
+      <ConnectionCard connection={connection} />
     </div>
   );
+}
+
+interface ConnectionItem {
+  key: string;
+  label: string;
+  detail: string;
+  pct: number;
+  paxRaw: number;
+}
+
+interface ConnectionSummary {
+  main?: ConnectionItem;
+  items: ConnectionItem[];
+}
+
+function ConnectionCard({ connection }: { connection: ConnectionSummary }) {
+  const main = connection.main;
+
+  return (
+    <KPICard
+      label="Principal conexão"
+      value={main?.label ?? "—"}
+      sub={main ? `${main.detail} · ${fmtPercent(main.pct)} dos passageiros` : "sem rotas no período"}
+      tooltip="Destino ou região metropolitana que mais recebeu passageiros saindo do aeroporto no período escolhido."
+      icon="↗"
+      accent={CONNECTION}
+    >
+      {connection.items.length > 0 && (
+        <div className="mt-3 space-y-1.5">
+          {connection.items.slice(0, 3).map(item => (
+            <div key={item.key}>
+              <div className="flex items-center justify-between gap-2 text-[0.62rem] text-slate-500">
+                <span className="min-w-0 truncate">{item.label}</span>
+                <span className="shrink-0 font-semibold text-slate-600">{fmtPercent(item.pct)}</span>
+              </div>
+              <div className="mt-0.5 h-1.5 overflow-hidden rounded-sm bg-slate-100">
+                <div
+                  className="h-full rounded-sm bg-emerald-500"
+                  style={{ width: `${Math.max(5, Math.min(100, item.pct))}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </KPICard>
+  );
+}
+
+function buildConnectionSummary(rotas?: RotasData): ConnectionSummary {
+  if (!rotas?.rotas.length || rotas.total_raw <= 0) return { items: [] };
+
+  const used = new Set<string>();
+  const items: ConnectionItem[] = [];
+
+  for (const group of METRO_GROUPS) {
+    const members = rotas.rotas.filter(route => group.airports.includes(route.dest));
+    if (!members.length) continue;
+
+    members.forEach(route => used.add(route.dest));
+    const paxRaw = members.reduce((sum, route) => sum + route.pax_raw, 0);
+    items.push({
+      key: group.key,
+      label: group.name,
+      detail: `${members.length} ${members.length === 1 ? "aeroporto" : "aeroportos"}`,
+      paxRaw,
+      pct: (paxRaw / rotas.total_raw) * 100,
+    });
+  }
+
+  for (const route of rotas.rotas) {
+    if (used.has(route.dest)) continue;
+    const { cidade, uf } = parseRouteLabel(route);
+    items.push({
+      key: route.dest,
+      label: cidade || route.dest,
+      detail: [route.dest, uf].filter(Boolean).join(" · "),
+      paxRaw: route.pax_raw,
+      pct: (route.pax_raw / rotas.total_raw) * 100,
+    });
+  }
+
+  items.sort((a, b) => b.paxRaw - a.paxRaw);
+  return { main: items[0], items };
+}
+
+function parseRouteLabel(route: Rota): { cidade: string; uf: string } {
+  const [, location = ""] = route.label.split("·").map(part => part.trim());
+  const [cidade = "", uf = ""] = location.split("/").map(part => part.trim());
+  return { cidade: toTitleCase(cidade), uf };
+}
+
+function toTitleCase(value: string): string {
+  return value
+    .toLocaleLowerCase("pt-BR")
+    .replace(/(^|\s|-)([A-Za-zÀ-ÖØ-öø-ÿ])/g, (_, prefix: string, letter: string) => prefix + letter.toLocaleUpperCase("pt-BR"));
+}
+
+function fmtPercent(value: number): string {
+  return `${value.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}%`;
 }

@@ -19,7 +19,6 @@ import FrotaEmpresas    from "@/components/charts/FrotaEmpresas";
 import AtaChart         from "@/components/charts/AtaChart";
 import AdsPorSistema    from "@/components/charts/AdsPorSistema";
 import OcorrenciasFase  from "@/components/charts/OcorrenciasFase";
-import KeyFindings     from "@/components/ui/KeyFindings";
 import MethodologyNote from "@/components/ui/MethodologyNote";
 import type { Mode as MapMode } from "@/components/maps/HeroMap";
 import type { SerieMode } from "@/components/charts/SerieTemporalD3";
@@ -40,15 +39,15 @@ const OcorrenciasMap = dynamic(() => import("@/components/maps/OcorrenciasMap"),
 });
 
 const MAP_TABS: { id: MapMode; label: string }[] = [
-  { id: "volume", label: "Volume" },
-  { id: "calor",  label: "Calor"  },
+  { id: "volume", label: "Passageiros" },
+  { id: "calor",  label: "Concentração" },
   { id: "rotas",  label: "Rotas"  },
 ];
 
 const SERIE_TABS: { id: SerieMode; label: string; hint: string }[] = [
-  { id: "indexed",  label: "Índice 100",  hint: "Trajetória normalizada para comparação" },
-  { id: "absolute", label: "Absoluto",    hint: "Valores brutos com eixos independentes" },
-  { id: "share",    label: "% Nacional",  hint: "Participação do aeroporto no mercado nacional" },
+  { id: "indexed",  label: "Comparação",  hint: "Mostra a evolução em base 100 para comparar tendências" },
+  { id: "absolute", label: "Valores",     hint: "Mostra a quantidade de passageiros" },
+  { id: "share",    label: "% do Brasil", hint: "Mostra a fatia do aeroporto no total nacional" },
 ];
 
 export default function Dashboard() {
@@ -97,7 +96,7 @@ export default function Dashboard() {
       {/* ── Hero: mapa + KPIs do aeroporto selecionado ──────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-2">
         <SectionCard
-          title="Aviação doméstica — rotas e volume de passageiros"
+          title="Mapa da aviação doméstica"
           chartId="chart-hero"
           actions={
             <div className="flex items-center bg-slate-100 rounded-md p-0.5 gap-0.5">
@@ -120,22 +119,14 @@ export default function Dashboard() {
             ? <HeroMap data={arcData} aeroporto={aeroporto} onAirportClick={onAirportClick} height={520} mode={mapMode} />
             : <Loader height={520} label="Carregando mapa…" />}
         </SectionCard>
-        <KPIRow kpis={kpis} serie={serie} scatter={scatter} aeroporto={aeroporto} layout="column" />
+        <KPIRow kpis={kpis} serie={serie} scatter={scatter} rotas={rotas} aeroporto={aeroporto} layout="column" />
       </div>
 
-      {/* ── Principais achados (dinâmicos) ───────────────────────────── */}
-      <KeyFindings
-        kpis={kpis} serie={serie} scatter={scatter}
-        rotas={rotas} heatmap={heatmap} frota={frota}
-        sdr={sdr} ocorr={ocorr}
-        aeroporto={aeroporto} anoIni={anoIni} anoFim={anoFim}
-      />
-
       {/* ── DEMANDA E SAZONALIDADE ──────────────────────────────────── */}
-      <ThemeBand label="Demanda e sazonalidade" hint="volume mensal e principais rotas do aeroporto" />
+      <ThemeBand label="Movimento de passageiros" hint="evolução mensal e principais destinos" />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <SectionCard
-          title="Passageiros mensais — Brasil vs. aeroporto selecionado"
+          title="Passageiros por mês — Brasil e aeroporto escolhido"
           chartId="chart-serie"
           className="md:col-span-2"
           actions={
@@ -161,7 +152,7 @@ export default function Dashboard() {
             : <Loader height={260} label="Carregando série temporal…" />}
         </SectionCard>
         <SectionCard
-          title="Top 5 rotas a partir do aeroporto"
+          title="Principais destinos saindo do aeroporto"
           chartId="chart-bar"
           actions={
             <label className="flex items-center gap-1.5 text-[0.6rem] uppercase tracking-wider text-slate-600 cursor-pointer select-none">
@@ -171,66 +162,66 @@ export default function Dashboard() {
                 onChange={e => setGroupMetros(e.target.checked)}
                 className="w-3 h-3 accent-anac-blue"
               />
-              Agrupar metrópoles
+              Agrupar regiões metropolitanas
             </label>
           }
         >
           {rotas && rotas.rotas.length
             ? <BarChartD3 data={rotas} groupMetros={groupMetros} />
-            : <Loader height={280} label="Carregando top rotas…" />}
+            : <Loader height={280} label="Carregando rotas…" />}
         </SectionCard>
       </div>
 
       {/* ── QUALIDADE OPERACIONAL ───────────────────────────────────── */}
-      <ThemeBand label="Qualidade operacional" hint="atrasos por mês × ano · empresas no aeroporto" />
+      <ThemeBand label="Pontualidade e empresas" hint="atrasos, participação das companhias e operação local" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        <SectionCard title="Atrasos no aeroporto — % voos >30 min por mês/ano" chartId="chart-heatmap">
+        <SectionCard title="Atrasos por mês — voos com mais de 30 min" chartId="chart-heatmap">
           {heatmap && heatmap.data.length
             ? <HeatmapD3 data={heatmap} aeroporto={aeroporto} />
-            : <Loader height={390} label="Carregando heatmap…" />}
+            : <Loader height={390} label="Carregando atrasos…" />}
         </SectionCard>
         <SectionCard
-          title="Market share × pontualidade — por companhia neste aeroporto"
+          title="Participação das empresas e pontualidade"
           chartId="chart-scatter"
           actions={
             <span className="text-[0.55rem] text-slate-400 cursor-help"
-                  title="Pontualidade da companhia ESPECIFICAMENTE neste aeroporto, no período filtrado. Pode diferir da pontualidade nacional da companhia.">ⓘ</span>
+                  title="Pontualidade de cada companhia no aeroporto escolhido e no período filtrado. Pode ser diferente da pontualidade nacional da empresa.">ⓘ</span>
           }
         >
           {scatter && scatter.points.length
             ? <ScatterD3 data={scatter} />
-            : <Loader height={300} label="Carregando market share…" />}
+            : <Loader height={300} label="Carregando empresas…" />}
         </SectionCard>
       </div>
 
       {/* ── FROTA BRASILEIRA ────────────────────────────────────────── */}
-      <ThemeBand label="Frota brasileira" hint="aeronaves de transporte ativas (RAB ANAC)" />
+      <ThemeBand label="Frota brasileira" hint="aeronaves comerciais ativas registradas na ANAC" />
 
       {/* Mini KPIs de frota (4 cards horizontais) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <MiniKPI
-          label="Frota de transporte"
+          label="Aeronaves de transporte"
           value={frotaT ? frotaT.total.toLocaleString("pt-BR") : "—"}
-          sub="aeronaves ativas (RAB)"
+          sub="ativas no registro da ANAC"
           accent="#003F7F"
         />
         <MiniKPI
-          label="Idade média"
-          value={frotaT?.idade_media != null ? `${frotaT.idade_media} anos` : "—"}
-          sub={frotaT?.idade_p90 != null ? `90% têm até ${frotaT.idade_p90} anos` : ""}
+          label="Idade média da frota"
+          value={frotaT?.idade_media != null ? `${frotaT.idade_media.toLocaleString("pt-BR")} anos` : "—"}
+          sub={frotaT?.idade_p90 != null ? `90% têm até ${frotaT.idade_p90.toLocaleString("pt-BR")} anos` : ""}
           accent="#0066CC"
         />
         <MiniKPI
-          label="Jato / turbofan"
-          value={frotaT ? `${frotaT.pct_jato}%` : "—"}
+          label="Aeronaves a jato"
+          value={frotaT ? `${frotaT.pct_jato.toLocaleString("pt-BR")}%` : "—"}
           sub={frotaT ? `da frota de transporte (${frotaT.total.toLocaleString("pt-BR")} aeronaves)` : ""}
           accent="#C89600"
         />
         <MiniKPI
-          label="CA vigente (nacional)"
+          label="Certificado em dia"
           value={frotaT?.ca ? `${frotaT.ca.pct_vigente.toFixed(0)}%` : "—"}
           sub={frotaT?.ca
-            ? `${frotaT.ca.vigente} de ${frotaT.total} com aeronavegabilidade em dia`
+            ? `${frotaT.ca.vigente.toLocaleString("pt-BR")} de ${frotaT.total.toLocaleString("pt-BR")} com certificado regular`
             : ""}
           accent={
             !frotaT?.ca ? "#7C3AED"
@@ -243,17 +234,17 @@ export default function Dashboard() {
 
       {/* Row 1: Fabricantes + Modelos nacionais (lado a lado) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        <SectionCard title="Top fabricantes — frota de transporte" chartId="chart-frota-fabricantes">
+        <SectionCard title="Fabricantes mais comuns — transporte" chartId="chart-frota-fabricantes">
           {frotaT
             ? <FrotaFabricantes data={frotaT.top_fabricantes} />
             : <Loader height={240} label="Carregando fabricantes…" />}
         </SectionCard>
         <SectionCard
-          title="Top modelos — frota de transporte"
+          title="Modelos mais comuns — transporte"
           chartId="chart-frota-modelos"
           actions={
             <span className="text-[0.55rem] text-slate-400 cursor-help"
-                  title="Aeronaves categoria TRANSPORTE / TRANSPORTE A/B / TRANSP.REGIONAL — inclui executivos (Phenom, King Air) e helicópteros (AW139). Cor da barra: azul = mais novo · cinza = mais antigo.">ⓘ</span>
+                  title="Aeronaves classificadas pela ANAC como transporte ou transporte regional. A cor indica idade média: azul = mais nova; cinza = mais antiga.">ⓘ</span>
           }
         >
           {frotaT
@@ -264,11 +255,11 @@ export default function Dashboard() {
 
       {/* Row 2: FrotaEmpresas em largura cheia (acomoda a nova coluna Modelo) */}
       <SectionCard
-        title="Idade da frota das empresas operando no aeroporto"
+        title="Frota das empresas que operam no aeroporto"
         chartId="chart-frota-empresas"
         actions={
           <span className="text-[0.55rem] text-slate-400 cursor-help"
-                title="Idade média, tamanho da frota (Brasil) e modelo dominante de cada companhia. A pontualidade é a operação ESPECIFICAMENTE neste aeroporto, no período filtrado.">ⓘ</span>
+                title="Mostra idade média, tamanho da frota no Brasil e modelo mais usado por cada companhia. A pontualidade considera somente o aeroporto e o período escolhidos.">ⓘ</span>
         }
       >
         {scatter
@@ -277,20 +268,20 @@ export default function Dashboard() {
       </SectionCard>
 
       {/* ── SEGURANÇA & MANUTENÇÃO ──────────────────────────────── */}
-      <ThemeBand label="Segurança e manutenção" hint="SDR · diretrizes de aeronavegabilidade · ocorrências CENIPA" />
+      <ThemeBand label="Segurança e manutenção" hint="falhas reportadas, regras obrigatórias e ocorrências investigadas" />
 
       {/* Mini KPIs nacionais */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <MiniKPI
-          label="SDRs registrados (10y+)"
+          label="Falhas reportadas"
           value={sdr ? sdr.total.toLocaleString("pt-BR") : "—"}
           sub={sdr ? `${sdr.ultimos_5_anos.toLocaleString("pt-BR")} nos últimos 5 anos` : ""}
           accent="#0066CC"
         />
         <MiniKPI
-          label="Acidentes (CENIPA)"
+          label="Acidentes investigados"
           value={ocorr ? ocorr.resumo.acidentes.toLocaleString("pt-BR") : "—"}
-          sub={ocorr ? `${ocorr.resumo.lesoes_fatais} lesões fatais no histórico` : ""}
+          sub={ocorr ? `${ocorr.resumo.lesoes_fatais.toLocaleString("pt-BR")} fatalidades registradas` : ""}
           accent="#DC2626"
         />
         <MiniKPI
@@ -298,15 +289,15 @@ export default function Dashboard() {
           value={ocorr ? ocorr.resumo.incidentes_graves.toLocaleString("pt-BR") : "—"}
           sub={ocorr
             ? (ocorr.resumo.incidentes > 0
-                ? `+ ${ocorr.resumo.incidentes.toLocaleString("pt-BR")} incidentes regulares`
+                ? `+ ${ocorr.resumo.incidentes.toLocaleString("pt-BR")} incidentes investigados`
                 : "investigados pelo CENIPA")
             : ""}
           accent="#EA580C"
         />
         <MiniKPI
-          label="Diretrizes vigentes"
+          label="Regras obrigatórias vigentes"
           value={ads ? ads.vigentes.toLocaleString("pt-BR") : "—"}
-          sub={ads ? `${(ads.total - ads.vigentes).toLocaleString("pt-BR")} substituídas ou revogadas` : ""}
+          sub={ads ? `${(ads.total - ads.vigentes).toLocaleString("pt-BR")} já substituídas ou revogadas` : ""}
           accent="#C89600"
         />
       </div>
@@ -314,24 +305,24 @@ export default function Dashboard() {
       {/* SDR ATA + Ocorrências fase (lado a lado) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         <SectionCard
-          title="Componentes mais reportados — SDR"
+          title="Falhas reportadas por componente"
           chartId="chart-ata"
           actions={
             <span className="text-[0.55rem] text-slate-400 cursor-help"
-                  title="Service Difficulty Reports agrupados por capítulo ATA (sistema da aeronave). Indica quais sistemas mais geram problemas técnicos no Brasil.">ⓘ</span>
+                  title="Relatos de dificuldade em serviço agrupados por sistema da aeronave. Ajuda a ver quais partes concentram mais problemas técnicos.">ⓘ</span>
           }
         >
           {sdr
             ? <AtaChart data={sdr} />
-            : <Loader height={260} label="Carregando SDRs…" />}
+            : <Loader height={260} label="Carregando falhas…" />}
         </SectionCard>
 
         <SectionCard
-          title="Ocorrências por fase da operação"
+          title="Ocorrências por fase do voo"
           chartId="chart-ocorr-fase"
           actions={
             <span className="text-[0.55rem] text-slate-400 cursor-help"
-                  title="Distribuição das ocorrências (acidentes + incidentes) pela fase da operação onde aconteceram.">ⓘ</span>
+                  title="Distribuição dos acidentes e incidentes pela etapa do voo em que aconteceram.">ⓘ</span>
           }
         >
           {ocorr
@@ -343,20 +334,20 @@ export default function Dashboard() {
       {/* ADs por sistema + Mapa de ocorrências */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         <SectionCard
-          title="Diretrizes de Aeronavegabilidade — top sistemas"
+          title="Regras técnicas da ANAC por tema"
           chartId="chart-ads"
           actions={
             <span className="text-[0.55rem] text-slate-400 cursor-help"
-                  title="ADs (ordens regulatórias obrigatórias) vigentes, por sistema afetado. Cada AD obriga inspeção ou reparo num modelo de aeronave.">ⓘ</span>
+                  title="Conta Diretrizes de Aeronavegabilidade vigentes: regras da ANAC que obrigam inspeção, correção ou substituição em aeronaves, motores ou componentes. Não são acidentes nem falhas ocorridas.">ⓘ</span>
           }
         >
           {ads
             ? <AdsPorSistema data={ads} />
-            : <Loader height={260} label="Carregando ADs…" />}
+            : <Loader height={260} label="Carregando regras…" />}
         </SectionCard>
 
         <SectionCard
-          title={`Mapa de ocorrências CENIPA · ${anoIni}–${anoFim}`}
+          title={`Mapa de ocorrências investigadas · ${anoIni}–${anoFim}`}
           chartId="chart-ocorrmap"
         >
           {ocorr
@@ -368,7 +359,7 @@ export default function Dashboard() {
       <MethodologyNote />
 
       <footer className="text-center text-[0.68rem] text-slate-400 border-t border-gray-200 pt-2 pb-3">
-        Dados: ANAC — Agência Nacional de Aviação Civil · Aviação doméstica regular · RAB · Dados públicos abertos
+        Dados: ANAC — Agência Nacional de Aviação Civil · voos domésticos regulares · registros públicos
       </footer>
     </div>
   );

@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Panorama da Aviação Doméstica — ANAC",
-  description: "Dashboard executivo de aviação doméstica brasileira · Dados Abertos ANAC",
+  description: "Painel público sobre voos domésticos, aeroportos, empresas e frota no Brasil.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

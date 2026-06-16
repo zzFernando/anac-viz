@@ -81,7 +81,9 @@ export function getKpis(ds: Dataset, anoIni: number, anoFim: number, aeroporto: 
 
   let paxAero = 0;
   for (const i of aeroIdxRange) paxAero += PASSAGEIROS_PAGOS[i];
-  const paxStr = paxAero >= 500_000 ? `${(paxAero / 1e6).toFixed(1)} M` : `${(paxAero / 1e3).toFixed(0)} K`;
+  const paxStr = paxAero >= 500_000
+    ? `${(paxAero / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} mi`
+    : `${Math.round(paxAero / 1e3).toLocaleString("pt-BR")} mil`;
 
   const mesesDisp = new Set<number>();
   let paxCur = 0;
@@ -145,15 +147,15 @@ export function getKpis(ds: Dataset, anoIni: number, anoFim: number, aeroporto: 
   let pontStr = "—", pontSub = "sem dados";
   if (pctVals.length > 0) {
     const atrasoMed = pctVals.reduce((s, v) => s + v, 0) / pctVals.length;
-    pontStr = `${(100 - atrasoMed).toFixed(1)}%`;
-    pontSub = `${atrasoMed.toFixed(1)}% dos voos atrasam >30 min`;
+    pontStr = `${(100 - atrasoMed).toFixed(1).replace(".", ",")}%`;
+    pontSub = `${atrasoMed.toFixed(1).replace(".", ",")}% saíram com mais de 30 min de atraso`;
   }
 
   return {
     nome,
-    pax: { value: paxStr, sub: "no período selecionado" },
+    pax: { value: paxStr, sub: "no período escolhido" },
     variacao: { value: varStr, sub: varSub, positive: varVal >= 0 },
-    lider: { value: lider, sub: `${liderShare.toFixed(0)}% do mercado local` },
+    lider: { value: lider, sub: `${liderShare.toFixed(0)}% dos passageiros do aeroporto` },
     pontualidade: { value: pontStr, sub: pontSub },
   };
 }
@@ -372,8 +374,18 @@ export function getRouteArcs(
     g.pax += PASSAGEIROS_PAGOS[i];
   }
 
-  const od = [...odMap.values()].filter((r) => r.pax > 0).sort((a, b) => b.pax - a.pax).slice(0, maxRoutes);
-  const paxMax = od.length ? od[0].pax : 1.0;
+  const allOd = [...odMap.values()].filter((r) => r.pax > 0).sort((a, b) => b.pax - a.pax);
+  const globalOd = allOd.slice(0, maxRoutes);
+  const focusCandidates = allOd
+    .filter((r) => r.origem === aeroporto || r.destino === aeroporto)
+    .slice(0, 60);
+
+  const odByKey = new Map<string, { origem: string; destino: string; pax: number }>();
+  for (const r of globalOd) odByKey.set(`${r.origem}|${r.destino}`, r);
+  for (const r of focusCandidates) odByKey.set(`${r.origem}|${r.destino}`, r);
+
+  const od = [...odByKey.values()].sort((a, b) => b.pax - a.pax);
+  const paxMax = allOd.length ? allOd[0].pax : 1.0;
 
   const focusOd = od.filter((r) => r.origem === aeroporto || r.destino === aeroporto);
   const focusPaxMax = focusOd.length ? Math.max(...focusOd.map((r) => r.pax)) : paxMax;

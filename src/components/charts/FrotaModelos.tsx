@@ -74,7 +74,7 @@ export default function FrotaModelos({ data }: { data: FrotaModelo[] }) {
       .attr("y", d => y(d.modelo)! + y.bandwidth() / 2 + 4)
       .attr("x", d => x(d.n) + 6 + String(d.n).length * 7 + 4)
       .attr("font-size", 9).attr("font-style", "italic").attr("fill", "#94A3B8")
-      .text(d => d.idade_media != null ? `${d.idade_media}a` : "");
+      .text(d => d.idade_media != null ? `${d.idade_media} anos` : "");
 
     // Y axis (modelos) — com tooltip nativo SVG mostrando fabricante completo
     g.append("g")
@@ -98,7 +98,7 @@ export default function FrotaModelos({ data }: { data: FrotaModelo[] }) {
     svg.append("text")
       .attr("x", W - MR + 4).attr("y", MT + 10)
       .attr("font-size", 8).attr("fill", "#94A3B8").attr("font-style", "italic")
-      .text("nº · idade média");
+      .text("quantidade · idade média");
   }, [data]);
 
   return (

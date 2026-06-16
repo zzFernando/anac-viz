@@ -20,6 +20,7 @@ export default function ScatterD3({ data }: { data: ScatterData }) {
     const svg = d3.select(ref.current).attr("width", W).attr("height", H);
     svg.selectAll("*").remove();
     const g = svg.append("g").attr("transform", `translate(${ML},${MT})`);
+    const fmtDecimal = (value: number, digits = 1) => value.toFixed(digits).replace(".", ",");
 
     const pts = data.points;
     const xMax = (d3.max(pts, d => d.market_share) ?? 50) * 1.15;
@@ -52,10 +53,10 @@ export default function ScatterD3({ data }: { data: ScatterData }) {
 
     // Quadrant labels
     for (const [qx, qy, label] of [
-      [mx * 0.35, my + (100 - my) * 0.75, "pontual · nicho"],
-      [mx + (xMax - mx) * 0.45, my + (100 - my) * 0.75, "pontual · dominante"],
-      [mx * 0.35, yMin + (my - yMin) * 0.2, "atrasada · nicho"],
-      [mx + (xMax - mx) * 0.45, yMin + (my - yMin) * 0.2, "atrasada · dominante"],
+      [mx * 0.35, my + (100 - my) * 0.75, "mais pontual · menor fatia"],
+      [mx + (xMax - mx) * 0.45, my + (100 - my) * 0.75, "mais pontual · maior fatia"],
+      [mx * 0.35, yMin + (my - yMin) * 0.2, "mais atrasos · menor fatia"],
+      [mx + (xMax - mx) * 0.45, yMin + (my - yMin) * 0.2, "mais atrasos · maior fatia"],
     ] as [number, number, string][]) {
       g.append("text").attr("x", x(qx)).attr("y", y(qy))
         .attr("text-anchor", "middle").attr("font-size", 8)
@@ -80,7 +81,7 @@ export default function ScatterD3({ data }: { data: ScatterData }) {
 
     g.append("text").attr("x", iW/2).attr("y", iH+28)
       .attr("text-anchor","middle").attr("font-size",9).attr("fill","#64748B")
-      .text("Market share (%)");
+      .text("Participação dos passageiros (%)");
     g.append("text").attr("transform","rotate(-90)")
       .attr("x", -iH/2).attr("y", -38)
       .attr("text-anchor","middle").attr("font-size",9).attr("fill","#64748B")
@@ -101,14 +102,14 @@ export default function ScatterD3({ data }: { data: ScatterData }) {
       .attr("opacity", 0.88)
       .on("mousemove", (ev: MouseEvent, d) => {
         const frotaLine = d.idade_frota != null
-          ? `<br>Frota: ${d.n_aeronaves} aer · ${d.idade_frota.toFixed(1)} anos`
+          ? `<br>Frota: ${d.n_aeronaves} aeronaves · ${fmtDecimal(d.idade_frota)} anos`
           : "";
         const caLine = d.pct_ca_vigente != null
-          ? `<br>CA vigente: ${d.pct_ca_vigente.toFixed(0)}%`
+          ? `<br>Certificado em dia: ${d.pct_ca_vigente.toFixed(0)}%`
           : "";
         setTip({
           x: ev.clientX + 12, y: ev.clientY - 8,
-          html: `<b>${d.label}</b><br>Market share: ${d.market_share.toFixed(1)}%<br>Pontualidade: ${d.pontualidade.toFixed(1)}%${frotaLine}${caLine}`,
+          html: `<b>${d.label}</b><br>Participação: ${fmtDecimal(d.market_share)}%<br>Pontualidade: ${fmtDecimal(d.pontualidade)}%${frotaLine}${caLine}`,
         });
       })
       .on("mouseleave", () => setTip(null));

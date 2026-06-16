@@ -18,14 +18,14 @@ export default function DashboardHeader({ downloading, onExportAll }: Props) {
             Panorama da Aviação Doméstica Brasileira
           </div>
           <div className="text-blue-200/60 text-xs mt-0.5">
-            Análise exploratória · Dados Abertos ANAC · 2000–2026
+            Dados públicos da ANAC · voos domésticos regulares · 2000–2026
           </div>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={onExportAll}
             disabled={downloading}
-            title="Baixar todos os gráficos como PNG"
+            title="Baixar gráficos como PNG"
             className="flex items-center gap-1.5 text-xs font-semibold text-white/80
                        bg-white/10 hover:bg-white/20 border border-white/20
                        rounded-full px-3 py-1.5 transition-all disabled:opacity-50
@@ -40,7 +40,7 @@ export default function DashboardHeader({ downloading, onExportAll }: Props) {
                 <path d="M8 1a.75.75 0 0 1 .75.75v6.69l1.97-1.97a.75.75 0 1 1 1.06 1.06L8 11.31l-3.78-3.78a.75.75 0 0 1 1.06-1.06L7.25 8.44V1.75A.75.75 0 0 1 8 1Zm-5.25 9.5a.75.75 0 0 1 .75.75v1.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-1.5a.75.75 0 0 1 1.5 0v1.5A2 2 0 0 1 12 15H4a2 2 0 0 1-2-2v-1.5a.75.75 0 0 1 .75-.75Z"/>
               </svg>
             )}
-            {downloading ? "Exportando…" : "Exportar tudo"}
+            {downloading ? "Baixando…" : "Baixar gráficos"}
           </button>
           <span className="text-[0.7rem] font-semibold text-white/90 bg-white/10 border border-white/20 rounded-full px-3 py-1 tracking-widest">
             ANAC

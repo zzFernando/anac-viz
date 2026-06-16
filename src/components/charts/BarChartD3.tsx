@@ -71,6 +71,8 @@ export default function BarChartD3({ data, groupMetros = false }: Props) {
 
     const rotas = [...rotasUsadas].reverse();   // primeiro da lista vai pro topo do bar chart
     const xMax  = (d3.max(rotas, d => d.pax) ?? 1) * 1.22;
+    const unitLabel = data.unit === "M" ? "mi" : "mil";
+    const fmtPax = (v: number) => `${v.toFixed(data.unit === "M" ? 1 : 0).replace(".", ",")}${unitLabel}`;
 
     const x = d3.scaleLinear().domain([0, xMax]).range([0, iW]);
     const y = d3.scaleBand()
@@ -111,14 +113,14 @@ export default function BarChartD3({ data, groupMetros = false }: Props) {
       .attr("x", d => x(d.pax) + 6)
       .attr("font-size", 11).attr("font-weight", 700)
       .attr("fill", "#0F172A")
-      .text(d => `${d.pax.toFixed(data.unit === "M" ? 1 : 0)}${data.unit}`);
+      .text(d => fmtPax(d.pax));
 
     g.selectAll("text.pct")
       .data(rotas)
       .enter().append("text")
       .attr("class", "pct")
       .attr("y", d => y(d.label)! + y.bandwidth() / 2 + 4)
-      .attr("x", d => x(d.pax) + 6 + (`${d.pax.toFixed(data.unit === "M" ? 1 : 0)}${data.unit}`).length * 7 + 4)
+      .attr("x", d => x(d.pax) + 6 + fmtPax(d.pax).length * 7 + 4)
       .attr("font-size", 9)
       .attr("fill", "#94A3B8")
       .text(d => totalRaw > 0 ? `(${((d.pax_raw / totalRaw) * 100).toFixed(0)}%)` : "");
@@ -143,7 +145,7 @@ export default function BarChartD3({ data, groupMetros = false }: Props) {
 
     // X axis
     g.append("g").attr("transform", `translate(0,${iH})`)
-      .call(d3.axisBottom(x).ticks(4).tickFormat(v => `${v}${data.unit}`))
+      .call(d3.axisBottom(x).ticks(4).tickFormat(v => `${v}${unitLabel}`))
       .call(s => s.select(".domain").attr("stroke", "#E2E8F0"))
       .call(s => s.selectAll("text").attr("font-size", 9).attr("fill", "#64748B"));
   }, [rotasUsadas, data]);

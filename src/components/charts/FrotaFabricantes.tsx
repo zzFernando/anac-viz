@@ -76,7 +76,7 @@ export default function FrotaFabricantes({ data }: { data: FrotaFabricante[] }) 
       .attr("x", d => x(d.n) + 6 + String(d.n).length * 7 + 4)
       .attr("font-size", 9).attr("font-style", "italic")
       .attr("fill", "#94A3B8")
-      .text(d => `${d.idade_media}a`);
+      .text(d => `${d.idade_media} anos`);
 
     // Y axis
     g.append("g")
@@ -94,7 +94,7 @@ export default function FrotaFabricantes({ data }: { data: FrotaFabricante[] }) 
     svg.append("text")
       .attr("x", W - MR + 4).attr("y", MT + 10)
       .attr("font-size", 8).attr("fill", "#94A3B8").attr("font-style", "italic")
-      .text("nº · idade média");
+      .text("quantidade · idade média");
   }, [data]);
 
   return (

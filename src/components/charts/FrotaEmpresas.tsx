@@ -25,6 +25,7 @@ export default function FrotaEmpresas({ points }: Props) {
 
     const W = wrap.current.clientWidth;
     const H = Math.max(180, data.length * 34 + 64);
+    const fmtDecimal = (value: number, digits = 1) => value.toFixed(digits).replace(".", ",");
 
     // Layout em 6 colunas alinhadas: empresa · barra · idade · frota/pont · CA · modelo
     const ML = 110;                       // coluna nome
@@ -44,7 +45,7 @@ export default function FrotaEmpresas({ points }: Props) {
         .attr("x", W / 2).attr("y", H / 2)
         .attr("text-anchor", "middle")
         .attr("fill", "#94A3B8").attr("font-size", 12)
-        .text("Sem dados de frota para as empresas deste aeroporto");
+        .text("Sem informações de frota para as empresas deste aeroporto");
       return;
     }
 
@@ -80,17 +81,17 @@ export default function FrotaEmpresas({ points }: Props) {
       .attr("x", ML + iW + COL_IDADE_W + 12).attr("y", MT - 10)
       .attr("font-size", 9).attr("font-weight", 700)
       .attr("fill", "#64748B")
-      .text("Frota · Pontualidade");
+      .text("Aeronaves · no horário");
     svg.append("text")
       .attr("x", ML + iW + COL_IDADE_W + COL_EXTRA_W + 16).attr("y", MT - 10)
       .attr("font-size", 9).attr("font-weight", 700)
       .attr("fill", "#64748B")
-      .text("CA vigente");
+      .text("Certificado");
     svg.append("text")
       .attr("x", ML + iW + COL_IDADE_W + COL_EXTRA_W + COL_CA_W + 20).attr("y", MT - 10)
       .attr("font-size", 9).attr("font-weight", 700)
       .attr("fill", "#64748B")
-      .text("Modelo dominante");
+      .text("Modelo mais usado");
 
     // Grid vertical (na área da barra apenas)
     g.append("g")
@@ -135,7 +136,7 @@ export default function FrotaEmpresas({ points }: Props) {
       .attr("text-anchor", "end")
       .attr("font-size", 11).attr("font-weight", 700)
       .attr("fill", "#0F172A")            // alto contraste, fora da barra
-      .text(d => `${d.idade_frota!.toFixed(1)}a`);
+      .text(d => `${fmtDecimal(d.idade_frota!)} anos`);
 
     // COLUNA: Frota · Pontualidade — separador visual + dois números
     g.selectAll("text.extra")
@@ -146,7 +147,7 @@ export default function FrotaEmpresas({ points }: Props) {
       .attr("x", iW + COL_IDADE_W + 12)
       .attr("font-size", 10)
       .attr("fill", "#64748B")
-      .text(d => `${d.n_aeronaves} aer · ${d.pontualidade.toFixed(1)}% pont`);
+      .text(d => `${d.n_aeronaves!.toLocaleString("pt-BR")} aeronaves · ${fmtDecimal(d.pontualidade)}%`);
 
     // COLUNA: CA vigente — mini bar horizontal + número + semáforo de cor
     const CA_X = iW + COL_IDADE_W + COL_EXTRA_W + 16;
@@ -201,7 +202,7 @@ export default function FrotaEmpresas({ points }: Props) {
       .attr("fill", "#334155")
       .text(d => truncModelo(d.modelo_top))
       .append("title")
-      .text(d => d.modelo_top ?? "Sem dado");
+      .text(d => d.modelo_top ?? "Sem informação");
 
     // Y axis (labels das empresas)
     g.append("g")
@@ -211,7 +212,7 @@ export default function FrotaEmpresas({ points }: Props) {
 
     // X axis
     g.append("g").attr("transform", `translate(0,${iH})`)
-      .call(d3.axisBottom(x).ticks(4).tickFormat(v => `${v}a`))
+      .call(d3.axisBottom(x).ticks(4).tickFormat(v => `${v} anos`))
       .call(s => s.select(".domain").attr("stroke", "#E2E8F0"))
       .call(s => s.selectAll("text").attr("font-size", 9).attr("fill", "#64748B"));
 

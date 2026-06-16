@@ -128,9 +128,9 @@ export default function HeroMap({ data, onAirportClick, height = 520, mode = "vo
 
   const overlayInfo = useMemo(() => {
     switch (mode) {
-      case "volume": return { title: "Volume por aeroporto", sub: "Colunas extrudadas · altura ∝ passageiros" };
-      case "calor":  return { title: "Densidade espacial",    sub: "Heatmap nacional ponderado por pax" };
-      case "rotas":  return { title: "Malha de rotas",         sub: "Arcos sobre o território brasileiro" };
+      case "volume": return { title: "Passageiros por aeroporto", sub: "Altura da coluna representa passageiros" };
+      case "calor":  return { title: "Concentração de passageiros", sub: "Áreas claras concentram mais passageiros" };
+      case "rotas":  return { title: "Rotas domésticas", sub: "Linhas destacam o aeroporto escolhido" };
     }
   }, [mode]);
 
@@ -138,7 +138,9 @@ export default function HeroMap({ data, onAirportClick, height = 520, mode = "vo
   const legendStats = useMemo(() => {
     const pax = (data?.airports ?? []).map(a => a.pax).filter(p => p > 0).sort((a, b) => a - b);
     if (!pax.length) return null;
-    const fmt = (v: number) => v >= 1e6 ? `${(v / 1e6).toFixed(1)}M` : `${Math.round(v / 1e3)}K`;
+    const fmt = (v: number) => v >= 1e6
+      ? `${(v / 1e6).toFixed(1).replace(".", ",")}mi`
+      : `${Math.round(v / 1e3).toLocaleString("pt-BR")}mil`;
     const max = pax[pax.length - 1];
     return {
       min: fmt(pax[0]),
@@ -159,7 +161,7 @@ export default function HeroMap({ data, onAirportClick, height = 520, mode = "vo
 
       {/* Legend bottom-left — agora com valores numéricos ancorados */}
       <div className="absolute bottom-3 left-3 z-10 bg-black/70 backdrop-blur-md border border-white/15 rounded px-3 py-2 pointer-events-none">
-        <div className="text-[9px] uppercase tracking-[0.14em] text-gray-400 mb-1.5">Passageiros / ano</div>
+        <div className="text-[9px] uppercase tracking-[0.14em] text-gray-400 mb-1.5">Passageiros no período</div>
         <div
           className="w-44 h-1.5 rounded"
           style={{ background: "linear-gradient(to right, rgb(26,10,58), rgb(74,29,138), rgb(201,59,110), rgb(244,160,75), rgb(253,230,138))" }}
@@ -169,12 +171,6 @@ export default function HeroMap({ data, onAirportClick, height = 520, mode = "vo
           <span>{legendStats?.mid ?? ""}</span>
           <span>{legendStats?.max ?? ""}</span>
         </div>
-      </div>
-
-      {/* HUD bottom-right */}
-      <div className="absolute bottom-3 right-12 z-10 text-[10px] font-mono text-gray-500 uppercase tracking-[0.12em] text-right leading-snug pointer-events-none">
-        <div>WebGL · <span className="text-gray-300">{zoom.toFixed(1)}</span></div>
-        <div>deck.gl + maplibre</div>
       </div>
 
       {tip && (
@@ -222,9 +218,10 @@ function buildLayers(data: RouteArcsData, mode: Mode, zoom: number, onClick: ((i
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onHover: ((info: any) => {
         if (info.object && setTip && info.x != null) {
+          const passageirosMi = (info.object.pax / 1e6).toFixed(1).replace(".", ",");
           setTip({
             x: info.x + 14, y: info.y - 8,
-            html: `<b>${info.object.icao}</b> — ${info.object.nome}/${info.object.uf}<br>${(info.object.pax / 1e6).toFixed(1)} M pax`,
+            html: `<b>${info.object.icao}</b> — ${info.object.nome}/${info.object.uf}<br>${passageirosMi} milhões de passageiros`,
           });
         } else if (setTip) {
           setTip(null);

@@ -37,6 +37,7 @@ export default function SerieTemporalD3({ data, mode = "absolute", aeroporto }: 
     const W = container.clientWidth;
     const H = 260;
     const MX = 14, MY = 20;
+    const fmtDecimal = (value: number, digits = 1) => value.toFixed(digits).replace(".", ",");
 
     const svg = d3.select(svgRef.current).attr("width", W).attr("height", H);
     svg.selectAll("*").remove();
@@ -117,7 +118,10 @@ export default function SerieTemporalD3({ data, mode = "absolute", aeroporto }: 
           .call(s => s.selectAll("line").attr("stroke", "#E2E8F0"));
 
         inner.append("g")
-          .call(d3.axisLeft(y).ticks(4).tickFormat(v => `${+v < 0.1 ? (+v * 100).toFixed(0) : (+v).toFixed(1)}`))
+          .call(d3.axisLeft(y).ticks(4).tickFormat(v => {
+            const value = +v < 0.1 ? (+v * 100).toFixed(0) : (+v).toFixed(1);
+            return value.replace(".", ",");
+          }))
           .call(s => s.select(".domain").attr("stroke", "#E2E8F0"))
           .call(s => s.selectAll("text").attr("font-size", 9).attr("fill", "#64748B"))
           .call(s => s.selectAll("line").attr("stroke", "#E2E8F0"));
@@ -128,13 +132,13 @@ export default function SerieTemporalD3({ data, mode = "absolute", aeroporto }: 
 
       const gNat = svg.append("g").attr("transform", `translate(${MX},${MY})`);
       gNat.append("text").attr("x", 46).attr("y", 14).attr("font-size", 9).attr("fill", "#64748B")
-        .text("🇧🇷 Brasil — total doméstico");
-      renderPanel(gNat, natRaw, ANAC_LIGHT, "grad-nat", "Pax (M)", subW);
+        .text("🇧🇷 Brasil — voos domésticos");
+      renderPanel(gNat, natRaw, ANAC_LIGHT, "grad-nat", "Passageiros (mi)", subW);
 
       const gAero = svg.append("g").attr("transform", `translate(${MX * 2 + subW},${MY})`);
       gAero.append("text").attr("x", 46).attr("y", 14).attr("font-size", 9).attr("fill", "#64748B")
         .text(`✈ ${data.aeroporto_nome}`);
-      renderPanel(gAero, aeroRaw, GOLD, "grad-aero", `Pax (${data.scale})`, subW);
+      renderPanel(gAero, aeroRaw, GOLD, "grad-aero", data.scale === "K" ? "Passageiros (mil)" : "Passageiros (mi)", subW);
 
       // Hover overlay (mesmo padrão original)
       const bisect = d3.bisector<Pt, Date>(d => d.date).left;
@@ -157,8 +161,8 @@ export default function SerieTemporalD3({ data, mode = "absolute", aeroporto }: 
             y: event.clientY - 10,
             date: d3.timeFormat("%b %Y")(d.date),
             rows: [
-              { color: ANAC_LIGHT, label: "🇧🇷 Brasil", value: `${d.pax.toFixed(2)} M pax` },
-              ...(dA ? [{ color: GOLD, label: `✈ ${data.aeroporto_nome}`, value: `${dA.pax.toFixed(2)} ${data.scale} pax` }] : []),
+              { color: ANAC_LIGHT, label: "🇧🇷 Brasil", value: `${fmtDecimal(d.pax, 2)} mi passageiros` },
+              ...(dA ? [{ color: GOLD, label: `✈ ${data.aeroporto_nome}`, value: `${fmtDecimal(dA.pax, 2)} ${data.scale === "K" ? "mil" : "mi"} passageiros` }] : []),
             ],
           });
         })
@@ -180,11 +184,11 @@ export default function SerieTemporalD3({ data, mode = "absolute", aeroporto }: 
       const firstAero = aeroRaw.find(d => d.pax > 0)?.pax || 1;
       const natIdx = natRaw.map(d => ({ date: d.date, pax: (d.pax / firstNat) * 100, mm24: d.mm24 != null ? (d.mm24 / firstNat) * 100 : null }));
       const aeroIdx = aeroRaw.map(d => ({ date: d.date, pax: (d.pax / firstAero) * 100, mm24: d.mm24 != null ? (d.mm24 / firstAero) * 100 : null }));
-      yLabelTxt = `Índice (base 100 = ${d3.timeFormat("%b/%Y")(natRaw[0]?.date ?? new Date())})`;
+      yLabelTxt = `Base 100 = ${d3.timeFormat("%b/%Y")(natRaw[0]?.date ?? new Date())}`;
       yMax = Math.max(d3.max(natIdx, d => d.pax) ?? 100, d3.max(aeroIdx, d => d.pax) ?? 100);
       series = [
-        { key: "nat", label: "🇧🇷 Brasil",                  color: ANAC_LIGHT, gradId: "grad-nat",  data: natIdx,  tooltipFmt: v => `${v.toFixed(1)} (idx)` },
-        { key: "aero", label: `✈ ${data.aeroporto_nome}`, color: GOLD,       gradId: "grad-aero", data: aeroIdx, tooltipFmt: v => `${v.toFixed(1)} (idx)` },
+        { key: "nat", label: "🇧🇷 Brasil",                  color: ANAC_LIGHT, gradId: "grad-nat",  data: natIdx,  tooltipFmt: v => `${fmtDecimal(v)} pontos` },
+        { key: "aero", label: `✈ ${data.aeroporto_nome}`, color: GOLD,       gradId: "grad-aero", data: aeroIdx, tooltipFmt: v => `${fmtDecimal(v)} pontos` },
       ];
     } else {
       // share — único traço, % do aeroporto sobre o nacional
@@ -200,10 +204,10 @@ export default function SerieTemporalD3({ data, mode = "absolute", aeroporto }: 
           mm24: d.mm24 != null && n?.mm24 ? ((d.mm24 * aeroDiv) / n.mm24) * 100 : null,
         };
       });
-      yLabelTxt = "% do mercado doméstico nacional";
+      yLabelTxt = "% dos passageiros do Brasil";
       yMax = (d3.max(shareData, d => d.pax) ?? 1) * 1.15;
       series = [
-        { key: "share", label: `✈ ${data.aeroporto_nome}`, color: ANAC_BLUE, gradId: "grad-share", data: shareData, tooltipFmt: v => `${v.toFixed(2)}%` },
+        { key: "share", label: `✈ ${data.aeroporto_nome}`, color: ANAC_BLUE, gradId: "grad-share", data: shareData, tooltipFmt: v => `${fmtDecimal(v, 2)}%` },
       ];
     }
 

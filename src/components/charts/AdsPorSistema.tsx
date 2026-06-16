@@ -8,8 +8,8 @@ const GOLD = "#C89600";
 const DEEP_BLUE = "#1E3A8A";
 
 /**
- * Bar horizontal — top sistemas com mais Diretrizes de Aeronavegabilidade vigentes.
- * Cada AD é uma ordem regulatória que obriga inspeção/reparo num sistema específico.
+ * Bar horizontal — assuntos/componentes mais frequentes nas regras obrigatórias vigentes.
+ * Cada regra pode exigir inspeção, correção ou acompanhamento técnico.
  */
 export default function AdsPorSistema({ data }: { data: AdsResumo }) {
   const ref  = useRef<SVGSVGElement>(null);

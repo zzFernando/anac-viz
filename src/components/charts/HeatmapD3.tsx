@@ -58,7 +58,7 @@ export default function HeatmapD3({ data, aeroporto }: Props) {
         const end   = new Date(ev.dateEnd ?? ev.date);
         const cell  = new Date(ano, mes - 1, 15);
         if (cell >= start && cell <= end) {
-          return `Aeroporto inoperante / sem dados — ${ev.label}`;
+          return `Aeroporto sem operação ou sem dados — ${ev.label}`;
         }
       }
       return null;
@@ -82,7 +82,7 @@ export default function HeatmapD3({ data, aeroporto }: Props) {
           .on("mousemove", (ev: MouseEvent) => {
             const html = missing
               ? `<b>${ano} — ${data.meses[ci]}</b><br>${ctx ?? "Sem dados disponíveis"}`
-              : `<b>${ano} — ${data.meses[ci]}</b><br>${val!.toFixed(1)}% voos com atraso >30 min`;
+              : `<b>${ano} — ${data.meses[ci]}</b><br>${val!.toFixed(1).replace(".", ",")}% dos voos atrasaram mais de 30 min`;
             setTip({ x: ev.clientX + 12, y: ev.clientY - 8, html });
           })
           .on("mouseleave", () => setTip(null));
@@ -152,7 +152,7 @@ export default function HeatmapD3({ data, aeroporto }: Props) {
     footerG.append("text")
       .attr("x", 0).attr("y", 0)
       .attr("font-size", 8).attr("font-style", "italic").attr("fill", "#64748B")
-      .text("Verde = poucos atrasos · Vermelho = muitos atrasos");
+      .text("Verde = menos atrasos · Vermelho = mais atrasos");
     // Swatch de hachura na legenda
     footerG.append("rect")
       .attr("x", 240).attr("y", -8)
@@ -162,7 +162,7 @@ export default function HeatmapD3({ data, aeroporto }: Props) {
     footerG.append("text")
       .attr("x", 254).attr("y", 0)
       .attr("font-size", 8).attr("fill", "#64748B")
-      .text("aeroporto inoperante / sem dados");
+      .text("sem operação ou sem dados");
   }, [data, aeroporto]);
 
   return (
