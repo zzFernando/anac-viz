@@ -159,8 +159,8 @@ export default function HeroMap({ data, onAirportClick, height = 520, mode = "vo
         <div className="text-[10px] uppercase tracking-[0.14em] text-gray-400 mt-0.5">{overlayInfo.sub}</div>
       </div>
 
-      {/* Legend bottom-left — agora com valores numéricos ancorados */}
-      <div className="absolute bottom-3 left-3 z-10 bg-black/70 backdrop-blur-md border border-white/15 rounded px-3 py-2 pointer-events-none">
+      {/* Legend bottom-left — apenas nos modos com escala de cor por passageiros */}
+      {mode !== "rotas" && <div className="absolute bottom-3 left-3 z-10 bg-black/70 backdrop-blur-md border border-white/15 rounded px-3 py-2 pointer-events-none">
         <div className="text-[9px] uppercase tracking-[0.14em] text-gray-400 mb-1.5">Passageiros no período</div>
         <div
           className="w-44 h-1.5 rounded"
@@ -171,7 +171,7 @@ export default function HeroMap({ data, onAirportClick, height = 520, mode = "vo
           <span>{legendStats?.mid ?? ""}</span>
           <span>{legendStats?.max ?? ""}</span>
         </div>
-      </div>
+      </div>}
 
       {tip && (
         <div

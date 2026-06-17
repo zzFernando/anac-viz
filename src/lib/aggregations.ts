@@ -104,7 +104,7 @@ export function getKpis(ds: Dataset, anoIni: number, anoFim: number, aeroporto: 
     }
     varVal = paxPrevMes > 0 ? (paxCurMes / paxPrevMes - 1) * 100 : 0;
     varStr = `${varVal >= 0 ? "+" : ""}${varVal.toFixed(1)}%`;
-    varSub = `jan–${MESES_BR[mesMax - 1]} ${anoFim} vs. ${anoFim - 1}`;
+    varSub = `${MESES_BR[0]}–${MESES_BR[mesMax - 1]} ${anoFim} vs. ${anoFim - 1}`;
   } else {
     const anosAero = new Map<number, number>();
     for (const i of aeroIdxAll) anosAero.set(ANO[i], (anosAero.get(ANO[i]) ?? 0) + PASSAGEIROS_PAGOS[i]);

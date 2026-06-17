@@ -153,9 +153,10 @@ export default function SerieTemporalD3({ data, mode = "absolute", aeroporto }: 
           if (offsetX < 0 || offsetX > iW2) { setTooltip(null); return; }
           const xScale = d3.scaleTime().domain(d3.extent(natRaw, d => d.date) as [Date, Date]).range([0, iW2]);
           const x0 = xScale.invert(offsetX);
-          const i = bisect(natRaw, x0, 1);
-          const d = natRaw[Math.min(i, natRaw.length - 1)];
-          const dA = aeroRaw[Math.min(i, aeroRaw.length - 1)];
+          const iNat  = bisect(natRaw,  x0, 1);
+          const iAero = bisect(aeroRaw, x0, 1);
+          const d  = natRaw[Math.min(iNat,  natRaw.length  - 1)];
+          const dA = aeroRaw[Math.min(iAero, aeroRaw.length - 1)];
           setTooltip({
             x: event.clientX + 14,
             y: event.clientY - 10,
@@ -180,11 +181,14 @@ export default function SerieTemporalD3({ data, mode = "absolute", aeroporto }: 
     let yMax: number;
 
     if (mode === "indexed") {
-      const firstNat = natRaw.find(d => d.pax > 0)?.pax || 1;
-      const firstAero = aeroRaw.find(d => d.pax > 0)?.pax || 1;
-      const natIdx = natRaw.map(d => ({ date: d.date, pax: (d.pax / firstNat) * 100, mm24: d.mm24 != null ? (d.mm24 / firstNat) * 100 : null }));
+      const firstNatPt  = natRaw.find(d => d.pax > 0);
+      const firstAeroPt = aeroRaw.find(d => d.pax > 0);
+      const firstNat  = firstNatPt?.pax  || 1;
+      const firstAero = firstAeroPt?.pax || 1;
+      const natIdx  = natRaw.map(d => ({ date: d.date, pax: (d.pax / firstNat)  * 100, mm24: d.mm24 != null ? (d.mm24 / firstNat)  * 100 : null }));
       const aeroIdx = aeroRaw.map(d => ({ date: d.date, pax: (d.pax / firstAero) * 100, mm24: d.mm24 != null ? (d.mm24 / firstAero) * 100 : null }));
-      yLabelTxt = `Base 100 = ${d3.timeFormat("%b/%Y")(natRaw[0]?.date ?? new Date())}`;
+      const baseDate = firstNatPt?.date ?? new Date();
+      yLabelTxt = `Base 100 = ${d3.timeFormat("%b/%Y")(baseDate)}`;
       yMax = Math.max(d3.max(natIdx, d => d.pax) ?? 100, d3.max(aeroIdx, d => d.pax) ?? 100);
       series = [
         { key: "nat", label: "🇧🇷 Brasil",                  color: ANAC_LIGHT, gradId: "grad-nat",  data: natIdx,  tooltipFmt: v => `${fmtDecimal(v)} pontos` },

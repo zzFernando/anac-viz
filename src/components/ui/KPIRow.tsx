@@ -178,14 +178,14 @@ function buildConnectionSummary(rotas?: RotasData): ConnectionSummary {
 
   for (const group of METRO_GROUPS) {
     const members = rotas.rotas.filter(route => group.airports.includes(route.dest));
-    if (!members.length) continue;
+    if (members.length < 2) continue;
 
     members.forEach(route => used.add(route.dest));
     const paxRaw = members.reduce((sum, route) => sum + route.pax_raw, 0);
     items.push({
       key: group.key,
       label: group.name,
-      detail: `${members.length} ${members.length === 1 ? "aeroporto" : "aeroportos"}`,
+      detail: `${members.length} aeroportos`,
       paxRaw,
       pct: (paxRaw / rotas.total_raw) * 100,
     });
