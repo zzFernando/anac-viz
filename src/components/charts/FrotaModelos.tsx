@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import type { FrotaModelo } from "@/lib/types";
 
-const ANAC_LIGHT = "#0066CC";
+import { paletteColor } from "@/lib/palette";
+import { useExpanded } from "@/lib/expandedContext";
 
 /**
  * Top modelos de aeronaves de transporte ativas no Brasil (RAB).
@@ -13,12 +14,13 @@ const ANAC_LIGHT = "#0066CC";
 export default function FrotaModelos({ data }: { data: FrotaModelo[] }) {
   const ref  = useRef<SVGSVGElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
+  const expanded = useExpanded();
 
   useEffect(() => {
     if (!ref.current || !wrap.current || !data?.length) return;
     const items = [...data].slice(0, 8);
     const W = wrap.current.clientWidth;
-    const H = 240;
+    const H = expanded ? 500 : 240;
     const ML = 130, MR = 110, MT = 6, MB = 26;
     const iW = W - ML - MR, iH = H - MT - MB;
 
@@ -33,7 +35,7 @@ export default function FrotaModelos({ data }: { data: FrotaModelo[] }) {
     const y = d3.scaleBand().domain(items.map(d => d.modelo)).range([0, iH]).padding(0.28);
     const colorByIdade = d3.scaleLinear<string>()
       .domain([2, idadeMax])
-      .range([ANAC_LIGHT, "#94A3B8"])
+      .range([paletteColor(4), "#94A3B8"])
       .clamp(true);
 
     // Grid
@@ -51,7 +53,7 @@ export default function FrotaModelos({ data }: { data: FrotaModelo[] }) {
       .attr("height", y.bandwidth())
       .attr("x", 0)
       .attr("width", 0)
-      .attr("fill", d => d.idade_media != null ? colorByIdade(d.idade_media) : ANAC_LIGHT)
+      .attr("fill", d => d.idade_media != null ? colorByIdade(d.idade_media) : paletteColor(4))
       .attr("rx", 3)
       .transition().duration(500).delay((_, i) => i * 50)
       .attr("width", d => x(d.n));
@@ -99,7 +101,7 @@ export default function FrotaModelos({ data }: { data: FrotaModelo[] }) {
       .attr("x", W - MR + 4).attr("y", MT + 10)
       .attr("font-size", 8).attr("fill", "#94A3B8").attr("font-style", "italic")
       .text("quantidade · idade média");
-  }, [data]);
+  }, [data, expanded]);
 
   return (
     <div ref={wrap} className="w-full">

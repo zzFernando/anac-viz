@@ -4,17 +4,18 @@ import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import type { FrotaFabricante } from "@/lib/types";
 
-const ANAC_BLUE  = "#003F7F";
-const ANAC_LIGHT = "#0066CC";
+import { paletteColor } from "@/lib/palette";
+import { useExpanded } from "@/lib/expandedContext";
 
 export default function FrotaFabricantes({ data }: { data: FrotaFabricante[] }) {
   const ref  = useRef<SVGSVGElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
+  const expanded = useExpanded();
 
   useEffect(() => {
     if (!ref.current || !wrap.current || !data?.length) return;
     const W = wrap.current.clientWidth;
-    const H = 240;
+    const H = expanded ? 500 : 240;
     const ML = 130, MR = 90, MT = 6, MB = 26;
     const iW = W - ML - MR, iH = H - MT - MB;
 
@@ -33,7 +34,7 @@ export default function FrotaFabricantes({ data }: { data: FrotaFabricante[] }) 
     // Cor: gradiente azul→cinza conforme idade média (mais novo = azul vivo, mais velho = cinza)
     const colorByIdade = d3.scaleLinear<string>()
       .domain([5, idadeMax])
-      .range([ANAC_LIGHT, "#94A3B8"])
+      .range([paletteColor(2), "#94A3B8"])
       .clamp(true);
 
     // Grid
@@ -95,7 +96,7 @@ export default function FrotaFabricantes({ data }: { data: FrotaFabricante[] }) 
       .attr("x", W - MR + 4).attr("y", MT + 10)
       .attr("font-size", 8).attr("fill", "#94A3B8").attr("font-style", "italic")
       .text("quantidade · idade média");
-  }, [data]);
+  }, [data, expanded]);
 
   return (
     <div ref={wrap} className="w-full">

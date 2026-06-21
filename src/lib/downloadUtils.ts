@@ -73,6 +73,8 @@ export type ChartId =
   | "chart-heatmap"
   | "chart-scatter"
   | "chart-bar"
+  | "chart-treemap"
+  | "chart-donut"
   | "chart-frota-fabricantes"
   | "chart-frota-modelos"
   | "chart-frota-empresas"
@@ -87,6 +89,8 @@ const CHART_LABELS: Record<ChartId, string> = {
   "chart-heatmap":           "heatmap_atrasos",
   "chart-scatter":           "participacao_pontualidade",
   "chart-bar":               "top_rotas",
+  "chart-treemap":           "top_rotas_treemap",
+  "chart-donut":             "top_rotas_donut",
   "chart-frota-fabricantes": "frota_fabricantes",
   "chart-frota-modelos":     "frota_modelos",
   "chart-frota-empresas":    "frota_empresas",

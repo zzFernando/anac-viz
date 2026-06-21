@@ -4,8 +4,8 @@ import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import type { AdsResumo } from "@/lib/types";
 
-const GOLD = "#C89600";
-const DEEP_BLUE = "#1E3A8A";
+import { paletteColor } from "@/lib/palette";
+import { useExpanded } from "@/lib/expandedContext";
 
 /**
  * Bar horizontal — assuntos/componentes mais frequentes nas regras obrigatórias vigentes.
@@ -14,19 +14,20 @@ const DEEP_BLUE = "#1E3A8A";
 export default function AdsPorSistema({ data }: { data: AdsResumo }) {
   const ref  = useRef<SVGSVGElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
+  const expanded = useExpanded();
 
   useEffect(() => {
     if (!ref.current || !wrap.current || !data?.top_sistemas?.length) return;
     // Trunca nomes longos para caber em ML (com elipsis no fim, preserva início)
     const MAX_LBL = 32;
-    const items = data.top_sistemas.slice(0, 10).map(d => ({
+    const items = data.top_sistemas.slice(0, expanded ? 20 : 10).map(d => ({
       ...d,
       full:    d.sistema,
       sistema: d.sistema.length > MAX_LBL ? d.sistema.slice(0, MAX_LBL - 1) + "…" : d.sistema,
     }));
     const W = wrap.current.clientWidth;
     const ML = 240, MR = 50, MT = 6, MB = 26;
-    const H = items.length * 24 + MT + MB + 4;
+    const H = items.length * (expanded ? 34 : 24) + MT + MB + 4;
     const iW = W - ML - MR, iH = H - MT - MB;
 
     const svg = d3.select(ref.current).attr("width", W).attr("height", H);
@@ -49,7 +50,7 @@ export default function AdsPorSistema({ data }: { data: AdsResumo }) {
       .attr("y", d => y(d.sistema)!)
       .attr("height", y.bandwidth())
       .attr("x", 0).attr("width", 0)
-      .attr("fill", (_, i) => i === 0 ? GOLD : DEEP_BLUE)
+      .attr("fill", (_, i) => paletteColor(i))
       .attr("opacity", 0.85)
       .attr("rx", 3)
       .transition().duration(500).delay((_, i) => i * 50)
@@ -80,7 +81,7 @@ export default function AdsPorSistema({ data }: { data: AdsResumo }) {
       .call(d3.axisBottom(x).ticks(4))
       .call(s => s.select(".domain").attr("stroke", "#E2E8F0"))
       .call(s => s.selectAll("text").attr("font-size", 9).attr("fill", "#64748B"));
-  }, [data]);
+  }, [data, expanded]);
 
   return (
     <div ref={wrap} className="w-full">

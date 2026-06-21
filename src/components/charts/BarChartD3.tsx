@@ -3,9 +3,8 @@ import { useEffect, useRef, useMemo } from "react";
 import * as d3 from "d3";
 import type { RotasData, Rota } from "@/lib/types";
 
-const ANAC_BLUE  = "#003F7F";
-const ANAC_LIGHT = "#0066CC";
-const GOLD       = "#C89600";
+import { paletteColor } from "@/lib/palette";
+import { useExpanded } from "@/lib/expandedContext";
 
 /** Grupos metropolitanos multi-aeroporto. Aplicado quando groupMetros=true. */
 const METRO_GROUPS: { key: string; name: string; airports: string[] }[] = [
@@ -51,17 +50,18 @@ interface Props {
 export default function BarChartD3({ data, groupMetros = false }: Props) {
   const ref  = useRef<SVGSVGElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
+  const expanded = useExpanded();
 
   // Pré-processa: aplica grouping (se ativo) e mantém top 5 do resultado
   const rotasUsadas = useMemo(() => {
     const base = groupMetros ? groupMetropolitan(data.rotas) : [...data.rotas];
     return base.slice(0, 5);
-  }, [data, groupMetros]);
+  }, [data, groupMetros, expanded]);
 
   useEffect(() => {
     if (!ref.current || !wrap.current || !rotasUsadas.length) return;
     const W = wrap.current.clientWidth;
-    const H = 280;
+    const H = expanded ? 560 : 280;
     const ML = 180, MR = 80, MT = 10, MB = 30;
     const iW = W - ML - MR, iH = H - MT - MB;
 
@@ -94,11 +94,7 @@ export default function BarChartD3({ data, groupMetros = false }: Props) {
       .attr("height", y.bandwidth())
       .attr("x", 0)
       .attr("width", 0)
-      .attr("fill", (d, i) => {
-        const isMetro = !!METRO_GROUPS.find(g => g.key === d.dest);
-        if (isMetro) return GOLD;
-        return i === rotas.length - 1 ? ANAC_BLUE : ANAC_LIGHT;
-      })
+      .attr("fill", (d, i) => paletteColor(rotas.length - 1 - i))
       .attr("rx", 3)
       .transition().duration(500).delay((_, i) => i * 60)
       .attr("width", d => x(d.pax));
@@ -131,16 +127,8 @@ export default function BarChartD3({ data, groupMetros = false }: Props) {
       .call(s => s.select(".domain").remove())
       .call(s => s.selectAll("text")
         .attr("font-size", 10)
-        .attr("fill", d => {
-          const r = rotas.find(rt => rt.label === d);
-          const isMetro = r && !!METRO_GROUPS.find(g => g.key === r.dest);
-          return isMetro ? "#C89600" : "#334155";
-        })
-        .attr("font-weight", d => {
-          const r = rotas.find(rt => rt.label === d);
-          const isMetro = r && !!METRO_GROUPS.find(g => g.key === r.dest);
-          return isMetro ? 700 : 400;
-        })
+        .attr("fill", "#334155")
+        .attr("font-weight", 400)
         .attr("dx", -4));
 
     // X axis
@@ -148,7 +136,7 @@ export default function BarChartD3({ data, groupMetros = false }: Props) {
       .call(d3.axisBottom(x).ticks(4).tickFormat(v => `${v}${unitLabel}`))
       .call(s => s.select(".domain").attr("stroke", "#E2E8F0"))
       .call(s => s.selectAll("text").attr("font-size", 9).attr("fill", "#64748B"));
-  }, [rotasUsadas, data]);
+  }, [rotasUsadas, data, expanded]);
 
   return (
     <div ref={wrap} className="w-full">

@@ -4,8 +4,8 @@ import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import type { OcorrenciaResumo } from "@/lib/types";
 
-const GOLD = "#C89600";
-const ANAC_LIGHT = "#0066CC";
+import { paletteColor } from "@/lib/palette";
+import { useExpanded } from "@/lib/expandedContext";
 
 /**
  * Bar horizontal — fase da operação onde ocorrências mais acontecem.
@@ -14,13 +14,14 @@ const ANAC_LIGHT = "#0066CC";
 export default function OcorrenciasFase({ data }: { data: OcorrenciaResumo }) {
   const ref  = useRef<SVGSVGElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
+  const expanded = useExpanded();
 
   useEffect(() => {
     if (!ref.current || !wrap.current || !data?.por_fase?.length) return;
-    const items = data.por_fase.filter(d => d.fase && d.fase !== "DESCONHECIDA").slice(0, 8);
+    const items = data.por_fase.filter(d => d.fase && d.fase !== "DESCONHECIDA").slice(0, expanded ? 16 : 8);
     const W = wrap.current.clientWidth;
     const ML = 140, MR = 56, MT = 6, MB = 26;
-    const H = items.length * 26 + MT + MB + 4;
+    const H = items.length * (expanded ? 38 : 26) + MT + MB + 4;
     const iW = W - ML - MR, iH = H - MT - MB;
 
     const svg = d3.select(ref.current).attr("width", W).attr("height", H);
@@ -43,7 +44,7 @@ export default function OcorrenciasFase({ data }: { data: OcorrenciaResumo }) {
       .attr("y", d => y(d.fase)!)
       .attr("height", y.bandwidth())
       .attr("x", 0).attr("width", 0)
-      .attr("fill", (_, i) => i === 0 ? GOLD : ANAC_LIGHT)
+      .attr("fill", (_, i) => paletteColor(i))
       .attr("opacity", 0.88)
       .attr("rx", 3)
       .transition().duration(500).delay((_, i) => i * 50)
@@ -68,7 +69,7 @@ export default function OcorrenciasFase({ data }: { data: OcorrenciaResumo }) {
       .call(d3.axisBottom(x).ticks(4))
       .call(s => s.select(".domain").attr("stroke", "#E2E8F0"))
       .call(s => s.selectAll("text").attr("font-size", 9).attr("fill", "#64748B"));
-  }, [data]);
+  }, [data, expanded]);
 
   return (
     <div ref={wrap} className="w-full">

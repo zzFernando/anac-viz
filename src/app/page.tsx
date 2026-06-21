@@ -13,12 +13,24 @@ import SerieTemporalD3 from "@/components/charts/SerieTemporalD3";
 import HeatmapD3       from "@/components/charts/HeatmapD3";
 import ScatterD3       from "@/components/charts/ScatterD3";
 import BarChartD3      from "@/components/charts/BarChartD3";
+import TreemapD3       from "@/components/charts/TreemapD3";
+import DonutD3         from "@/components/charts/DonutD3";
 import FrotaFabricantes from "@/components/charts/FrotaFabricantes";
-import FrotaModelos     from "@/components/charts/FrotaModelos";
-import FrotaEmpresas    from "@/components/charts/FrotaEmpresas";
-import AtaChart         from "@/components/charts/AtaChart";
-import AdsPorSistema    from "@/components/charts/AdsPorSistema";
-import OcorrenciasFase  from "@/components/charts/OcorrenciasFase";
+import FrotaFabricantesScatter from "@/components/charts/FrotaFabricantesScatter";
+import FrotaModelos         from "@/components/charts/FrotaModelos";
+import FrotaModelosLollipop from "@/components/charts/FrotaModelosLollipop";
+import FrotaEmpresas         from "@/components/charts/FrotaEmpresas";
+import FrotaEmpresasParallel from "@/components/charts/FrotaEmpresasParallel";
+import AtaChart              from "@/components/charts/AtaChart";
+import AtaLollipop           from "@/components/charts/AtaLollipop";
+import AtaDotPlot            from "@/components/charts/AtaDotPlot";
+import AtaPareto             from "@/components/charts/AtaPareto";
+import AtaWaffle             from "@/components/charts/AtaWaffle";
+import AtaHBar               from "@/components/charts/AtaHBar";
+import AdsWaffle             from "@/components/charts/AdsWaffle";
+import OcorrenciasFase        from "@/components/charts/OcorrenciasFase";
+import OcorrenciasFaseRadial  from "@/components/charts/OcorrenciasFaseRadial";
+import OcorrenciasFaseWaffle  from "@/components/charts/OcorrenciasFaseWaffle";
 import MethodologyNote from "@/components/ui/MethodologyNote";
 import type { Mode as MapMode } from "@/components/maps/HeroMap";
 import type { SerieMode } from "@/components/charts/SerieTemporalD3";
@@ -57,6 +69,12 @@ export default function Dashboard() {
   const [mapMode, setMapMode]     = useState<MapMode>("volume");
   const [serieMode, setSerieMode] = useState<SerieMode>("indexed");
   const [groupMetros, setGroupMetros] = useState<boolean>(true);
+  const [rotasView,       setRotasView]       = useState<"bar" | "treemap" | "donut">("donut");
+  const [fabricantesView, setFabricantesView] = useState<"bar" | "scatter">("scatter");
+  const [modelosView,      setModelosView]      = useState<"bar" | "lollipop">("lollipop");
+  const [empresasView,     setEmpresasView]     = useState<"bar" | "parallel">("parallel");
+  const [faseView,         setFaseView]         = useState<"bar" | "radial" | "waffle">("radial");
+  const [ataView,          setAtaView]          = useState<"bar" | "lollipop" | "dot" | "pareto" | "waffle" | "hbar">("hbar");
   const [downloading, startDownload] = useTransition();
 
   const { data: filters } = useFilters();
@@ -153,21 +171,50 @@ export default function Dashboard() {
         </SectionCard>
         <SectionCard
           title="Principais destinos saindo do aeroporto"
-          chartId="chart-bar"
+          chartId={rotasView === "bar" ? "chart-bar" : rotasView === "treemap" ? "chart-treemap" : "chart-donut"}
           actions={
-            <label className="flex items-center gap-1.5 text-[0.6rem] uppercase tracking-wider text-slate-600 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={groupMetros}
-                onChange={e => setGroupMetros(e.target.checked)}
-                className="w-3 h-3 accent-anac-blue"
-              />
-              Agrupar regiões metropolitanas
-            </label>
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-1.5 text-[0.6rem] uppercase tracking-wider text-slate-600 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={groupMetros}
+                  onChange={e => setGroupMetros(e.target.checked)}
+                  className="w-3 h-3 accent-anac-blue"
+                />
+                Agrupar regiões metropolitanas
+              </label>
+              <div className="flex rounded overflow-hidden border border-slate-200">
+                <button
+                  onClick={() => setRotasView("bar")}
+                  title="Barras"
+                  className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${rotasView === "bar" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                >
+                  ▬ Barras
+                </button>
+                <button
+                  onClick={() => setRotasView("treemap")}
+                  title="Treemap"
+                  className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${rotasView === "treemap" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                >
+                  ▦ Treemap
+                </button>
+                <button
+                  onClick={() => setRotasView("donut")}
+                  title="Donut"
+                  className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${rotasView === "donut" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                >
+                  ◎ Donut
+                </button>
+              </div>
+            </div>
           }
         >
           {rotas && rotas.rotas.length
-            ? <BarChartD3 data={rotas} groupMetros={groupMetros} />
+            ? rotasView === "bar"
+              ? <BarChartD3 data={rotas} groupMetros={groupMetros} />
+              : rotasView === "treemap"
+              ? <TreemapD3  data={rotas} groupMetros={groupMetros} />
+              : <DonutD3    data={rotas} groupMetros={groupMetros} />
             : <Loader height={280} label="Carregando rotas…" />}
         </SectionCard>
       </div>
@@ -234,21 +281,48 @@ export default function Dashboard() {
 
       {/* Row 1: Fabricantes + Modelos nacionais (lado a lado) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        <SectionCard title="Fabricantes mais comuns — transporte" chartId="chart-frota-fabricantes">
+        <SectionCard
+          title="Fabricantes mais comuns — transporte"
+          chartId="chart-frota-fabricantes"
+          actions={
+            <div className="flex rounded overflow-hidden border border-slate-200">
+              <button
+                onClick={() => setFabricantesView("bar")}
+                className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${fabricantesView === "bar" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+              >▬ Barras</button>
+              <button
+                onClick={() => setFabricantesView("scatter")}
+                className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${fabricantesView === "scatter" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+              >◉ Scatter</button>
+            </div>
+          }
+        >
           {frotaT
-            ? <FrotaFabricantes data={frotaT.top_fabricantes} />
+            ? fabricantesView === "bar"
+              ? <FrotaFabricantes data={frotaT.top_fabricantes} />
+              : <FrotaFabricantesScatter data={frotaT.top_fabricantes} />
             : <Loader height={240} label="Carregando fabricantes…" />}
         </SectionCard>
         <SectionCard
           title="Modelos mais comuns — transporte"
           chartId="chart-frota-modelos"
           actions={
-            <span className="text-[0.55rem] text-slate-400 cursor-help"
-                  title="Aeronaves classificadas pela ANAC como transporte ou transporte regional. A cor indica idade média: azul = mais nova; cinza = mais antiga.">ⓘ</span>
+            <div className="flex rounded overflow-hidden border border-slate-200">
+              <button
+                onClick={() => setModelosView("bar")}
+                className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${modelosView === "bar" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+              >▬ Barras</button>
+              <button
+                onClick={() => setModelosView("lollipop")}
+                className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${modelosView === "lollipop" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+              >⦾ Lollipop</button>
+            </div>
           }
         >
           {frotaT
-            ? <FrotaModelos data={frotaT.top_modelos} />
+            ? modelosView === "bar"
+              ? <FrotaModelos         data={frotaT.top_modelos} />
+              : <FrotaModelosLollipop data={frotaT.top_modelos} />
             : <Loader height={240} label="Carregando modelos…" />}
         </SectionCard>
       </div>
@@ -258,12 +332,22 @@ export default function Dashboard() {
         title="Frota das empresas que operam no aeroporto"
         chartId="chart-frota-empresas"
         actions={
-          <span className="text-[0.55rem] text-slate-400 cursor-help"
-                title="Mostra idade média, tamanho da frota no Brasil e modelo mais usado por cada companhia. A pontualidade considera somente o aeroporto e o período escolhidos.">ⓘ</span>
+          <div className="flex rounded overflow-hidden border border-slate-200">
+            <button
+              onClick={() => setEmpresasView("bar")}
+              className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${empresasView === "bar" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+            >▬ Barras</button>
+            <button
+              onClick={() => setEmpresasView("parallel")}
+              className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${empresasView === "parallel" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+            >⫴ Paralelas</button>
+          </div>
         }
       >
         {scatter
-          ? <FrotaEmpresas points={scatter.points} />
+          ? empresasView === "bar"
+            ? <FrotaEmpresas         points={scatter.points} />
+            : <FrotaEmpresasParallel points={scatter.points} />
           : <Loader height={240} label="Carregando frota por empresa…" />}
       </SectionCard>
 
@@ -308,12 +392,26 @@ export default function Dashboard() {
           title="Falhas reportadas por componente"
           chartId="chart-ata"
           actions={
-            <span className="text-[0.55rem] text-slate-400 cursor-help"
-                  title="Relatos de dificuldade em serviço agrupados por sistema da aeronave. Ajuda a ver quais partes concentram mais problemas técnicos.">ⓘ</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[0.55rem] text-slate-400 cursor-help"
+                    title="Relatos de dificuldade em serviço agrupados por sistema da aeronave. Ajuda a ver quais partes concentram mais problemas técnicos.">ⓘ</span>
+              <div className="flex rounded overflow-hidden border border-slate-200">
+                {(["hbar", "bar", "lollipop", "pareto", "waffle"] as const).map(v => (
+                  <button key={v} onClick={() => setAtaView(v)}
+                    className={`px-2 py-0.5 text-[0.6rem] font-medium transition-colors ${ataView === v ? "bg-slate-700 text-white" : "bg-white text-slate-500 hover:bg-slate-100"}`}>
+                    {v === "hbar" ? "H. Barras" : v === "bar" ? "Barras" : v === "lollipop" ? "Lollipop" : v === "pareto" ? "Pareto" : "Waffle"}
+                  </button>
+                ))}
+              </div>
+            </div>
           }
         >
           {sdr
-            ? <AtaChart data={sdr} />
+            ? ataView === "hbar" ? <AtaHBar data={sdr} />
+              : ataView === "bar" ? <AtaChart data={sdr} />
+              : ataView === "lollipop" ? <AtaLollipop data={sdr} />
+              : ataView === "pareto" ? <AtaPareto data={sdr} />
+              : <AtaWaffle data={sdr} />
             : <Loader height={260} label="Carregando falhas…" />}
         </SectionCard>
 
@@ -321,12 +419,24 @@ export default function Dashboard() {
           title="Ocorrências por fase do voo"
           chartId="chart-ocorr-fase"
           actions={
-            <span className="text-[0.55rem] text-slate-400 cursor-help"
-                  title="Distribuição dos acidentes e incidentes pela etapa do voo em que aconteceram.">ⓘ</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[0.55rem] text-slate-400 cursor-help"
+                    title="Distribuição dos acidentes e incidentes pela etapa do voo em que aconteceram.">ⓘ</span>
+              <div className="flex rounded overflow-hidden border border-slate-200">
+                {(["bar", "radial", "waffle"] as const).map(v => (
+                  <button key={v} onClick={() => setFaseView(v)}
+                    className={`px-2 py-0.5 text-[0.6rem] font-medium transition-colors ${faseView === v ? "bg-slate-700 text-white" : "bg-white text-slate-500 hover:bg-slate-100"}`}>
+                    {v === "bar" ? "Barras" : v === "radial" ? "Radial" : "Waffle"}
+                  </button>
+                ))}
+              </div>
+            </div>
           }
         >
           {ocorr
-            ? <OcorrenciasFase data={ocorr.resumo} />
+            ? faseView === "bar" ? <OcorrenciasFase data={ocorr.resumo} />
+              : faseView === "radial" ? <OcorrenciasFaseRadial data={ocorr.resumo} />
+              : <OcorrenciasFaseWaffle data={ocorr.resumo} />
             : <Loader height={260} label="Carregando ocorrências…" />}
         </SectionCard>
       </div>
@@ -342,7 +452,7 @@ export default function Dashboard() {
           }
         >
           {ads
-            ? <AdsPorSistema data={ads} />
+            ? <AdsWaffle data={ads} />
             : <Loader height={260} label="Carregando regras…" />}
         </SectionCard>
 

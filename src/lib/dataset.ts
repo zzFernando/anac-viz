@@ -64,6 +64,7 @@ export interface FrotaInfo {
   n_aeronaves: number | null;
   idade_media: number | null;
   pct_ca_vigente: number | null;
+  pct_jato: number | null;
   modelo_top: string | null;
 }
 
@@ -193,9 +194,10 @@ export function loadDataset(): Promise<Dataset> {
       const frotaBySig = new Map<string, FrotaInfo>();
       for (let i = 0; i < frotaEmpresas.empresa_icao.length; i++) {
         frotaBySig.set(frotaEmpresas.empresa_icao[i], {
-          n_aeronaves: frotaEmpresas.n_aeronaves[i],
-          idade_media: frotaEmpresas.idade_media[i],
+          n_aeronaves:    frotaEmpresas.n_aeronaves[i],
+          idade_media:    frotaEmpresas.idade_media[i],
           pct_ca_vigente: frotaEmpresas.pct_ca_vigente[i],
+          pct_jato:       frotaEmpresas.pct_jato[i] ?? null,
           modelo_top: frotaEmpresas.modelo_top[i],
         });
       }

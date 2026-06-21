@@ -58,6 +58,8 @@ export interface ScatterPoint {
   n_aeronaves:    number | null;
   /** % da frota da cia com Certificado de Aeronavegabilidade vigente (snapshot RAB). */
   pct_ca_vigente: number | null;
+  /** % da frota da cia composta por aeronaves a jato (vs turboélice/pistão). */
+  pct_jato:       number | null;
   /** Modelo de aeronave dominante na frota da cia. */
   modelo_top:     string | null;
 }

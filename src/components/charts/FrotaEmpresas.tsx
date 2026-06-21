@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import type { ScatterPoint } from "@/lib/types";
+import { useExpanded } from "@/lib/expandedContext";
 
 const GOLD = "#C89600";
 
@@ -14,6 +15,7 @@ interface Props {
 export default function FrotaEmpresas({ points }: Props) {
   const ref  = useRef<SVGSVGElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
+  const expanded = useExpanded();
 
   useEffect(() => {
     if (!ref.current || !wrap.current) return;
@@ -24,7 +26,8 @@ export default function FrotaEmpresas({ points }: Props) {
       .sort((a, b) => (a.idade_frota! - b.idade_frota!));   // mais novas no topo
 
     const W = wrap.current.clientWidth;
-    const H = Math.max(180, data.length * 34 + 64);
+    const rowH = expanded ? 52 : 34;
+    const H = Math.max(expanded ? 300 : 180, data.length * rowH + 64);
     const fmtDecimal = (value: number, digits = 1) => value.toFixed(digits).replace(".", ",");
 
     // Layout em 6 colunas alinhadas: empresa · barra · idade · frota/pont · CA · modelo
@@ -241,7 +244,7 @@ export default function FrotaEmpresas({ points }: Props) {
         .attr("fill", GOLD)
         .text("★");
     }
-  }, [points]);
+  }, [points, expanded]);
 
   return (
     <div ref={wrap} className="w-full">

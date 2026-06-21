@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import type { SerieData } from "@/lib/types";
 import { eventsForAirport, type ContextualEvent } from "@/lib/events";
+import { useExpanded } from "@/lib/expandedContext";
 
 const ANAC_BLUE  = "#003F7F";
 const ANAC_LIGHT = "#0066CC";
@@ -30,12 +31,13 @@ export default function SerieTemporalD3({ data, mode = "absolute", aeroporto }: 
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef       = useRef<SVGSVGElement>(null);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  const expanded = useExpanded();
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !data) return;
     const container = containerRef.current;
     const W = container.clientWidth;
-    const H = 260;
+    const H = expanded ? 520 : 260;
     const MX = 14, MY = 20;
     const fmtDecimal = (value: number, digits = 1) => value.toFixed(digits).replace(".", ",");
 
@@ -323,7 +325,7 @@ export default function SerieTemporalD3({ data, mode = "absolute", aeroporto }: 
         });
       })
       .on("mouseleave", () => setTooltip(null));
-  }, [data, mode, aeroporto]);
+  }, [data, mode, aeroporto, expanded]);
 
   return (
     <div ref={containerRef} className="w-full relative">

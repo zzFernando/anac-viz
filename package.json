@@ -6,7 +6,10 @@
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start --port 3000",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report"
   },
   "dependencies": {
     "@deck.gl/mapbox": "^9.3.2",
@@ -30,6 +33,7 @@
     "topojson-client": "^3.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.0",
     "@types/d3": "^7.4.3",
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.3",

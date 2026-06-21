@@ -311,7 +311,8 @@ export function getScatter(ds: Dataset, anoIni: number, anoFim: number, aeroport
       idade_frota: frota?.idade_media ?? null,
       n_aeronaves: frota?.n_aeronaves ?? null,
       pct_ca_vigente: frota?.pct_ca_vigente ?? null,
-      modelo_top: frota?.modelo_top ?? null,
+      pct_jato:       frota?.pct_jato       ?? null,
+      modelo_top:     frota?.modelo_top     ?? null,
     });
   }
   if (points.length === 0) return { points: [], med_ms: 0, med_pont: 0 };

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import type { ScatterData } from "@/lib/types";
+import { useExpanded } from "@/lib/expandedContext";
 
 interface Tip { x: number; y: number; html: string }
 
@@ -9,11 +10,12 @@ export default function ScatterD3({ data }: { data: ScatterData }) {
   const ref  = useRef<SVGSVGElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const [tip, setTip] = useState<Tip | null>(null);
+  const expanded = useExpanded();
 
   useEffect(() => {
     if (!ref.current || !wrap.current || !data || !data.points.length) return;
     const W = wrap.current.clientWidth;
-    const H = 300;
+    const H = expanded ? 580 : 300;
     const ML = 50, MR = 24, MT = 20, MB = 36;
     const iW = W - ML - MR, iH = H - MT - MB;
 
@@ -169,7 +171,7 @@ export default function ScatterD3({ data }: { data: ScatterData }) {
       .attr("font-size", 9).attr("font-weight", 600)
       .attr("fill", n => n.color)
       .text(n => n.label);
-  }, [data]);
+  }, [data, expanded]);
 
   return (
     <div ref={wrap} className="w-full relative">

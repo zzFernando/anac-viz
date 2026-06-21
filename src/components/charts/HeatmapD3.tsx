@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import type { HeatmapData } from "@/lib/types";
 import { eventsForAirport } from "@/lib/events";
+import { useExpanded } from "@/lib/expandedContext";
 
 interface Tip { x: number; y: number; html: string }
 
@@ -16,6 +17,7 @@ export default function HeatmapD3({ data, aeroporto }: Props) {
   const ref = useRef<SVGSVGElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const [tip, setTip] = useState<Tip | null>(null);
+  const expanded = useExpanded();
 
   useEffect(() => {
     if (!ref.current || !wrap.current || !data || !data.data.length) return;
@@ -23,7 +25,7 @@ export default function HeatmapD3({ data, aeroporto }: Props) {
     const ML = 42, MR = 80, MT = 10, MB = 36;
     const cols = 12, rows = data.anos.length;
     const cellW = (W - ML - MR) / cols;
-    const cellH = Math.max(16, Math.min(28, 340 / rows));
+    const cellH = expanded ? Math.max(28, Math.min(52, 600 / rows)) : Math.max(16, Math.min(28, 340 / rows));
     const H = rows * cellH + MT + MB;
 
     const svg = d3.select(ref.current).attr("width", W).attr("height", H);
@@ -163,7 +165,7 @@ export default function HeatmapD3({ data, aeroporto }: Props) {
       .attr("x", 254).attr("y", 0)
       .attr("font-size", 8).attr("fill", "#64748B")
       .text("sem operação ou sem dados");
-  }, [data, aeroporto]);
+  }, [data, aeroporto, expanded]);
 
   return (
     <div ref={wrap} className="w-full relative">
