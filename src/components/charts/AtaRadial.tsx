@@ -95,17 +95,28 @@ export default function AtaRadial({ data }: { data: SdrResumo }) {
     const maxChars = Math.floor((LEG - 32) / (fs * 0.6));
 
     function highlightSlice(idx: number | null) {
-      slices.transition().duration(100)
-        .attr("opacity", idx === null ? 0.88 : (_, j) => j === idx ? 1 : 0.18)
-        .attr("d", (d2, j) => (idx === null
-          ? arc(d2, j)
-          : j === idx ? arcHover(d2, j) : arc(d2, j)) ?? "");
+      const st = slices.transition().duration(100);
+      if (idx === null) {
+        st.attr("opacity", 0.88)
+          .attr("d", (d2, j) => arc(d2, j) ?? "");
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (st as any)
+          .attr("opacity", (_: unknown, j: number) => j === idx ? 1 : 0.18)
+          .attr("d", (d2: typeof items[0], j: number) =>
+            (j === idx ? arcHover(d2, j) : arc(d2, j)) ?? "");
+      }
       const item = idx !== null ? items[idx] : null;
       center.select("text.val").text(item ? item.n.toLocaleString("pt-BR") : "");
       center.select("text.pct").text(item ? `${((item.n / total) * 100).toFixed(0)}%` : "");
       center.select("text.lbl").text(item ? (item.nome.length > 14 ? item.nome.slice(0, 13) + "…" : item.nome) : "");
-      legRows.transition().duration(100)
-        .attr("opacity", idx === null ? 1 : (_, j) => j === idx ? 1 : 0.35);
+      const lt = legRows.transition().duration(100);
+      if (idx === null) {
+        lt.attr("opacity", 1);
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (lt as any).attr("opacity", (_: unknown, j: number) => j === idx ? 1 : 0.35);
+      }
     }
 
     slices

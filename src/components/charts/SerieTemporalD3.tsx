@@ -37,7 +37,7 @@ export default function SerieTemporalD3({ data, mode = "absolute", aeroporto }: 
     if (!svgRef.current || !containerRef.current || !data) return;
     const container = containerRef.current;
     const W = container.clientWidth;
-    const H = expanded ? 520 : 260;
+    const H = expanded ? 520 : 300;
     const MX = 14, MY = 20;
     const fmtDecimal = (value: number, digits = 1) => value.toFixed(digits).replace(".", ",");
 

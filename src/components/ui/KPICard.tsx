@@ -2,7 +2,7 @@ interface KPICardProps {
   label:    string;
   value:    string;
   sub:      string;
-  icon:     string;
+  icon?:    string;
   accent?:  string;
   size?:    "default" | "hero";
   tooltip?: string;
@@ -26,14 +26,16 @@ export default function KPICard({
       style={{ borderTop: `3px solid ${accent}` }}
       title={tooltip}
     >
-      {/* Ícone como watermark — fica ATRÁS do conteúdo (z-0) */}
-      <span
-        className={`absolute right-3 ${isHero ? "top-3 text-4xl" : "bottom-2 text-3xl"} select-none pointer-events-none z-0`}
-        style={{ opacity: 0.08 }}
-        aria-hidden
-      >
-        {icon}
-      </span>
+      {/* Ícone como watermark — apenas no modo hero */}
+      {icon && isHero && (
+        <span
+          className="absolute right-3 top-3 text-4xl select-none pointer-events-none z-0"
+          style={{ opacity: 0.08 }}
+          aria-hidden
+        >
+          {icon}
+        </span>
+      )}
       <div className={`${pad} relative z-10`}>
         <div className="flex items-baseline gap-1.5">
           <p className={`${labelCls} font-bold uppercase tracking-widest text-slate-500`}>

@@ -62,7 +62,7 @@ interface Props {
 
 interface Tip { x: number; y: number; html: string }
 
-export default function HeroMap({ data, onAirportClick, height = 520, mode = "volume" }: Props) {
+export default function HeroMap({ data, onAirportClick, height, mode = "volume" }: Props) {
   const mapRef        = useRef<HTMLDivElement>(null);
   const mapInstance   = useRef<maplibregl.Map | null>(null);
   const overlayRef    = useRef<MapboxOverlay | null>(null);
@@ -150,7 +150,7 @@ export default function HeroMap({ data, onAirportClick, height = 520, mode = "vo
   }, [data]);
 
   return (
-    <div id="chart-hero" className="relative overflow-hidden rounded-md" style={{ height, background: "#06070d" }}>
+    <div id="chart-hero" className="flex-1 relative overflow-hidden rounded-md" style={{ minHeight: height ?? 320, background: "#06070d" }}>
       <div ref={mapRef} className="absolute inset-0" />
 
       {/* Overlay card (top-left) */}

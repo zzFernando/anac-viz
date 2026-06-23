@@ -5,22 +5,7 @@ import type { OcorrenciaResumo } from "@/lib/types";
 import { paletteColor, UI } from "@/lib/palette";
 import { useExpanded } from "@/lib/expandedContext";
 
-// Ordem sequencial das fases do voo
-const PHASE_ORDER = [
-  "Táxi", "Corrida", "Decolagem", "Subida",
-  "Cruzeiro", "Em rota", "Descida", "Aproximação",
-  "Manobra", "Pouso", "Corrida após pouso", "Estacionamento",
-];
-
-function phaseOrder(fase: string): number {
-  const upper = fase.toUpperCase();
-  // Verifica frases mais longas primeiro para evitar falso-match (ex: "Corrida após" ⊂ "Corrida")
-  const byLength = [...PHASE_ORDER].sort((a, b) => b.length - a.length);
-  const match = byLength.find(p => upper.includes(p.toUpperCase()));
-  return match ? PHASE_ORDER.indexOf(match) : 99;
-}
-
-export default function OcorrenciasFaseRadial({ data }: { data: OcorrenciaResumo }) {
+export default function OcorrenciasFaseDonut({ data }: { data: OcorrenciaResumo }) {
   const ref  = useRef<SVGSVGElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const expanded = useExpanded();
@@ -28,77 +13,48 @@ export default function OcorrenciasFaseRadial({ data }: { data: OcorrenciaResumo
   useEffect(() => {
     if (!ref.current || !wrap.current || !data?.por_fase?.length) return;
 
-    const items = [...data.por_fase]
+    const items = data.por_fase
       .filter(d => d.fase && d.fase !== "DESCONHECIDA")
-      .sort((a, b) => b.n - a.n)
-      .slice(0, 10);
+      .slice(0, expanded ? 16 : 10)
+      .map((d, i) => ({ ...d, color: paletteColor(i) }));
 
     const W    = wrap.current.clientWidth;
-    const H    = expanded ? 520 : 280;
-    const LEG  = expanded ? 140 : 120;   // largura da legenda à esquerda
+    const H    = expanded ? 420 : 280;
+    const LEG  = expanded ? 160 : 140;
     const cx   = LEG + (W - LEG) / 2;
     const cy   = H / 2;
-    const outerR = Math.min((W - LEG) / 2, cy) - (expanded ? 20 : 16);
-    const innerR = outerR * 0.42;
+    const outerR = Math.min((W - LEG) / 2, cy) - (expanded ? 20 : 14);
+    const innerR = outerR * 0.52;
 
     const svg = d3.select(ref.current).attr("width", W).attr("height", H);
     svg.selectAll("*").remove();
 
     const total = d3.sum(items, d => d.n);
-    const maxN  = d3.max(items, d => d.n) ?? 1;
 
-    // Escala de raio: innerR → outerR baseado no valor
-    const rScale = d3.scaleLinear().domain([0, maxN]).range([innerR, outerR]);
+    const pie = d3.pie<typeof items[0]>()
+      .value(d => d.n)
+      .sort(null)
+      .padAngle(0.018);
 
-    // Ângulos — fatias iguais por fase
-    const angleStep = (2 * Math.PI) / items.length;
-    const gap = 0.08; // gap angular entre fatias
+    const arc = d3.arc<d3.PieArcDatum<typeof items[0]>>()
+      .innerRadius(innerR).outerRadius(outerR).cornerRadius(3);
 
-    const arc = d3.arc<typeof items[0]>()
-      .innerRadius(innerR)
-      .outerRadius(d => rScale(d.n))
-      .startAngle((_, i) => i * angleStep + gap / 2 - Math.PI / 2)
-      .endAngle((_, i) => (i + 1) * angleStep - gap / 2 - Math.PI / 2)
-      .padRadius(innerR)
-      .cornerRadius(3);
-
-    const arcHover = d3.arc<typeof items[0]>()
-      .innerRadius(innerR)
-      .outerRadius(d => rScale(d.n) + 8)
-      .startAngle((_, i) => i * angleStep + gap / 2 - Math.PI / 2)
-      .endAngle((_, i) => (i + 1) * angleStep - gap / 2 - Math.PI / 2)
-      .cornerRadius(3);
+    const arcHover = d3.arc<d3.PieArcDatum<typeof items[0]>>()
+      .innerRadius(innerR).outerRadius(outerR + 8).cornerRadius(3);
 
     const g = svg.append("g").attr("transform", `translate(${cx},${cy})`);
 
-    // Círculos de referência
-    [0.25, 0.5, 0.75, 1].forEach(pct => {
-      g.append("circle")
-        .attr("r", innerR + (outerR - innerR) * pct)
-        .attr("fill", "none")
-        .attr("stroke", pct === 1 ? "#CBD5E1" : "#E2E8F0")
-        .attr("stroke-width", pct === 1 ? 1.5 : 1);
-    });
-
-    // Fatias
     const slices = g.selectAll("path.slice")
-      .data(items)
+      .data(pie(items))
       .enter().append("path")
       .attr("class", "slice")
-      .attr("d", (d, i) => arc(d, i) ?? "")
-      .attr("fill", (_, i) => paletteColor(i))
-      .attr("opacity", 0.88)
+      .attr("d", arc)
+      .attr("fill", d => d.data.color)
+      .attr("opacity", 0)
       .style("cursor", "pointer");
 
-    // Animação de entrada — escala de raio 0→1
-    slices
-      .attr("transform", "scale(0)")
-      .transition().duration(600).delay((_, i) => i * 60)
-      .ease(d3.easeCubicOut)
-      .attr("transform", "scale(1)");
+    slices.transition().duration(500).delay((_, i) => i * 40).attr("opacity", 0.88);
 
-
-    // Centro — mostra valor/% ao hover
     const center = g.append("g");
     center.append("text").attr("class", "lbl")
       .attr("text-anchor", "middle").attr("y", -10)
@@ -110,22 +66,21 @@ export default function OcorrenciasFaseRadial({ data }: { data: OcorrenciaResumo
       .attr("text-anchor", "middle").attr("y", 24)
       .attr("font-size", 11).attr("fill", UI.axisText);
 
-    // Legenda à esquerda — interativa
-    const legG    = svg.append("g").attr("transform", "translate(0,0)");
     const rowH    = Math.min(H / items.length, expanded ? 28 : 22);
     const offsetY = (H - items.length * rowH) / 2;
     const fs      = expanded ? 9 : 8;
+    const maxChars = Math.floor((LEG - 32) / (fs * 0.6));
 
     function highlightSlice(idx: number | null) {
       const st = slices.transition().duration(100);
       if (idx === null) {
-        st.attr("opacity", 0.88).attr("d", (d2, j) => arc(d2, j) ?? "");
+        st.attr("opacity", 0.88).attr("d", (d2) => arc(d2) ?? "");
       } else {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (st as any)
           .attr("opacity", (_: unknown, j: number) => j === idx ? 1 : 0.18)
-          .attr("d", (d2: typeof items[0], j: number) =>
-            (j === idx ? arcHover(d2, j) : arc(d2, j)) ?? "");
+          .attr("d", (d2: d3.PieArcDatum<typeof items[0]>, j: number) =>
+            (j === idx ? arcHover(d2) : arc(d2)) ?? "");
       }
       const item = idx !== null ? items[idx] : null;
       center.select("text.val").text(item ? item.n.toLocaleString("pt-BR") : "");
@@ -142,10 +97,10 @@ export default function OcorrenciasFaseRadial({ data }: { data: OcorrenciaResumo
     }
 
     slices
-      .on("mouseenter", (_, d) => highlightSlice(items.indexOf(d)))
+      .on("mouseenter", function(_, d) { highlightSlice(items.indexOf(d.data)); })
       .on("mouseleave", () => highlightSlice(null));
 
-    const maxChars = Math.floor((LEG - 32) / (fs * 0.6));
+    const legG = svg.append("g").attr("transform", "translate(0,0)");
 
     const legRows = legG.selectAll("g.leg-row")
       .data(items)
@@ -159,19 +114,22 @@ export default function OcorrenciasFaseRadial({ data }: { data: OcorrenciaResumo
     legRows.append("rect")
       .attr("x", 0).attr("y", rowH / 2 - 5)
       .attr("width", 9).attr("height", 9).attr("rx", 2)
-      .attr("fill", (_, i) => paletteColor(i));
+      .attr("fill", d => d.color);
 
     legRows.append("text")
       .attr("x", 13).attr("y", rowH / 2 + 4)
       .attr("font-size", fs).attr("fill", UI.labelDark)
-      .text(d => d.fase.length > maxChars ? d.fase.slice(0, maxChars - 1) + "…" : d.fase)
+      .text(d => {
+        const lbl = d.fase;
+        return lbl.length > maxChars ? lbl.slice(0, maxChars - 1) + "…" : lbl;
+      })
       .append("title").text(d => d.fase);
 
     legRows.append("text")
       .attr("x", LEG - 2).attr("y", rowH / 2 + 4)
       .attr("text-anchor", "end")
       .attr("font-size", fs).attr("font-weight", 700)
-      .attr("fill", (_, i) => paletteColor(i))
+      .attr("fill", d => d.color)
       .text(d => d.n.toLocaleString("pt-BR"));
 
   }, [data, expanded]);

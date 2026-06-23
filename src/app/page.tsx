@@ -26,7 +26,11 @@ import AtaDonut              from "@/components/charts/AtaDonut";
 import AtaWaffle             from "@/components/charts/AtaWaffle";
 import AtaRadial             from "@/components/charts/AtaRadial";
 import AdsWaffle             from "@/components/charts/AdsWaffle";
+import AdsBar                from "@/components/charts/AdsBar";
+import AdsDonut              from "@/components/charts/AdsDonut";
+import AdsRadial             from "@/components/charts/AdsRadial";
 import OcorrenciasFase        from "@/components/charts/OcorrenciasFase";
+import OcorrenciasFaseDonut   from "@/components/charts/OcorrenciasFaseDonut";
 import OcorrenciasFaseRadial  from "@/components/charts/OcorrenciasFaseRadial";
 import OcorrenciasFaseWaffle  from "@/components/charts/OcorrenciasFaseWaffle";
 import MethodologyNote from "@/components/ui/MethodologyNote";
@@ -70,7 +74,8 @@ export default function Dashboard() {
   const [fabricantesView, setFabricantesView] = useState<"bar" | "scatter">("scatter");
   const [modelosView,      setModelosView]      = useState<"bar" | "lollipop">("lollipop");
   const [empresasView,     setEmpresasView]     = useState<"bar" | "parallel">("parallel");
-  const [faseView,         setFaseView]         = useState<"bar" | "radial" | "waffle">("radial");
+  const [faseView,         setFaseView]         = useState<"bar" | "donut" | "radial" | "waffle">("radial");
+  const [adsView,          setAdsView]          = useState<"bar" | "donut" | "radial" | "waffle">("waffle");
   const [ataView,          setAtaView]          = useState<"bar" | "donut" | "waffle" | "radial">("donut");
   const [downloading, startDownload] = useTransition();
 
@@ -108,8 +113,10 @@ export default function Dashboard() {
         nomeAeroporto={kpis?.nome}
       />
 
-      {/* ── Hero: mapa + KPIs do aeroporto selecionado ──────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-2">
+      {/* ── KPIs + Mapa + (Destinos / Série) ─────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_1fr] gap-2 items-stretch">
+        <KPIRow kpis={kpis} serie={serie} scatter={scatter} rotas={rotas} aeroporto={aeroporto} layout="column" />
+
         <SectionCard
           title="Mapa da aviação doméstica"
           chartId="chart-hero"
@@ -131,89 +138,76 @@ export default function Dashboard() {
           }
         >
           {arcData
-            ? <HeroMap data={arcData} aeroporto={aeroporto} onAirportClick={onAirportClick} height={520} mode={mapMode} />
+            ? <HeroMap data={arcData} aeroporto={aeroporto} onAirportClick={onAirportClick} mode={mapMode} />
             : <Loader height={520} label="Carregando mapa…" />}
         </SectionCard>
-        <KPIRow kpis={kpis} serie={serie} scatter={scatter} rotas={rotas} aeroporto={aeroporto} layout="column" />
-      </div>
 
-      {/* ── DEMANDA E SAZONALIDADE ──────────────────────────────────── */}
-      <ThemeBand label="Movimento de passageiros" hint="evolução mensal e principais destinos" />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-        <SectionCard
-          title="Passageiros por mês — Brasil e aeroporto escolhido"
-          chartId="chart-serie"
-          className="md:col-span-2"
-          actions={
-            <div className="flex items-center bg-slate-100 rounded-md p-0.5 gap-0.5">
-              {SERIE_TABS.map(t => (
-                <button
-                  key={t.id}
-                  onClick={() => setSerieMode(t.id)}
-                  title={t.hint}
-                  className={`px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider rounded transition-colors
-                    ${serieMode === t.id
-                      ? "bg-anac-blue text-white shadow-sm"
-                      : "text-slate-600 hover:bg-white"}`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          }
-        >
-          {serie
-            ? <SerieTemporalD3 data={serie} mode={serieMode} aeroporto={aeroporto} />
-            : <Loader height={260} label="Carregando série temporal…" />}
-        </SectionCard>
-        <SectionCard
-          title="Principais destinos saindo do aeroporto"
-          chartId={rotasView === "bar" ? "chart-bar" : rotasView === "treemap" ? "chart-treemap" : "chart-donut"}
-          actions={
-            <div className="flex items-center gap-3">
-              <label className="flex items-center gap-1.5 text-[0.6rem] uppercase tracking-wider text-slate-600 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={groupMetros}
-                  onChange={e => setGroupMetros(e.target.checked)}
-                  className="w-3 h-3 accent-anac-blue"
-                />
-                Agrupar regiões metropolitanas
-              </label>
-              <div className="flex rounded overflow-hidden border border-slate-200">
-                <button
-                  onClick={() => setRotasView("bar")}
-                  title="Barras"
-                  className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${rotasView === "bar" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
-                >
-                  ▬ Barras
-                </button>
-                <button
-                  onClick={() => setRotasView("treemap")}
-                  title="Treemap"
-                  className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${rotasView === "treemap" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
-                >
-                  ▦ Treemap
-                </button>
-                <button
-                  onClick={() => setRotasView("donut")}
-                  title="Donut"
-                  className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${rotasView === "donut" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
-                >
-                  ◎ Donut
-                </button>
+        {/* Coluna direita: destinos em cima, série temporal embaixo */}
+        <div className="flex flex-col gap-2 h-full">
+          <SectionCard
+            title="Principais destinos saindo do aeroporto"
+            chartId={rotasView === "bar" ? "chart-bar" : rotasView === "treemap" ? "chart-treemap" : "chart-donut"}
+            actions={
+              <div className="flex items-center gap-2">
+                <label className="flex items-center gap-1 text-[0.58rem] uppercase tracking-wider text-slate-600 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={groupMetros}
+                    onChange={e => setGroupMetros(e.target.checked)}
+                    className="w-3 h-3 accent-anac-blue"
+                  />
+                  Agrupar metros
+                </label>
+                <div className="flex rounded overflow-hidden border border-slate-200">
+                  <button onClick={() => setRotasView("bar")} title="Barras"
+                    className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${rotasView === "bar" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                  >▬</button>
+                  <button onClick={() => setRotasView("treemap")} title="Treemap"
+                    className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${rotasView === "treemap" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                  >▦</button>
+                  <button onClick={() => setRotasView("donut")} title="Donut"
+                    className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${rotasView === "donut" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                  >◎</button>
+                </div>
               </div>
-            </div>
-          }
-        >
-          {rotas && rotas.rotas.length
-            ? rotasView === "bar"
-              ? <BarChartD3 data={rotas} groupMetros={groupMetros} />
-              : rotasView === "treemap"
-              ? <TreemapD3  data={rotas} groupMetros={groupMetros} />
-              : <DonutD3    data={rotas} groupMetros={groupMetros} />
-            : <Loader height={280} label="Carregando rotas…" />}
-        </SectionCard>
+            }
+          >
+            {rotas && rotas.rotas.length
+              ? rotasView === "bar"
+                ? <BarChartD3 data={rotas} groupMetros={groupMetros} />
+                : rotasView === "treemap"
+                ? <TreemapD3  data={rotas} groupMetros={groupMetros} />
+                : <DonutD3    data={rotas} groupMetros={groupMetros} />
+              : <Loader height={280} label="Carregando rotas…" />}
+          </SectionCard>
+
+          <SectionCard
+            title="Passageiros por mês — Brasil e aeroporto escolhido"
+            chartId="chart-serie"
+            className="flex-1"
+            actions={
+              <div className="flex items-center bg-slate-100 rounded-md p-0.5 gap-0.5">
+                {SERIE_TABS.map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => setSerieMode(t.id)}
+                    title={t.hint}
+                    className={`px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider rounded transition-colors
+                      ${serieMode === t.id
+                        ? "bg-anac-blue text-white shadow-sm"
+                        : "text-slate-600 hover:bg-white"}`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            }
+          >
+            {serie
+              ? <SerieTemporalD3 data={serie} mode={serieMode} aeroporto={aeroporto} />
+              : <Loader height={260} label="Carregando série temporal…" />}
+          </SectionCard>
+        </div>
       </div>
 
       {/* ── QUALIDADE OPERACIONAL ───────────────────────────────────── */}
@@ -419,10 +413,10 @@ export default function Dashboard() {
               <span className="text-[0.55rem] text-slate-400 cursor-help"
                     title="Distribuição dos acidentes e incidentes pela etapa do voo em que aconteceram.">ⓘ</span>
               <div className="flex rounded overflow-hidden border border-slate-200">
-                {(["bar", "radial", "waffle"] as const).map(v => (
+                {(["bar", "donut", "waffle", "radial"] as const).map(v => (
                   <button key={v} onClick={() => setFaseView(v)}
                     className={`px-2 py-0.5 text-[0.6rem] font-medium transition-colors ${faseView === v ? "bg-slate-700 text-white" : "bg-white text-slate-500 hover:bg-slate-100"}`}>
-                    {v === "bar" ? "Barras" : v === "radial" ? "Radial" : "Waffle"}
+                    {v === "bar" ? "Barras" : v === "donut" ? "Donut" : v === "waffle" ? "Waffle" : "Radial"}
                   </button>
                 ))}
               </div>
@@ -430,9 +424,10 @@ export default function Dashboard() {
           }
         >
           {ocorr
-            ? faseView === "bar" ? <OcorrenciasFase data={ocorr.resumo} />
-              : faseView === "radial" ? <OcorrenciasFaseRadial data={ocorr.resumo} />
-              : <OcorrenciasFaseWaffle data={ocorr.resumo} />
+            ? faseView === "bar"    ? <OcorrenciasFase       data={ocorr.resumo} />
+              : faseView === "donut"  ? <OcorrenciasFaseDonut  data={ocorr.resumo} />
+              : faseView === "waffle" ? <OcorrenciasFaseWaffle data={ocorr.resumo} />
+              : <OcorrenciasFaseRadial data={ocorr.resumo} />
             : <Loader height={260} label="Carregando ocorrências…" />}
         </SectionCard>
       </div>
@@ -443,12 +438,25 @@ export default function Dashboard() {
           title="Regras técnicas da ANAC por tema"
           chartId="chart-ads"
           actions={
-            <span className="text-[0.55rem] text-slate-400 cursor-help"
-                  title="Conta Diretrizes de Aeronavegabilidade vigentes: regras da ANAC que obrigam inspeção, correção ou substituição em aeronaves, motores ou componentes. Não são acidentes nem falhas ocorridas.">ⓘ</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[0.55rem] text-slate-400 cursor-help"
+                    title="Conta Diretrizes de Aeronavegabilidade vigentes: regras da ANAC que obrigam inspeção, correção ou substituição em aeronaves, motores ou componentes. Não são acidentes nem falhas ocorridas.">ⓘ</span>
+              <div className="flex rounded overflow-hidden border border-slate-200">
+                {(["bar", "donut", "waffle", "radial"] as const).map(v => (
+                  <button key={v} onClick={() => setAdsView(v)}
+                    className={`px-2 py-0.5 text-[0.6rem] font-medium transition-colors ${adsView === v ? "bg-slate-700 text-white" : "bg-white text-slate-500 hover:bg-slate-100"}`}>
+                    {v === "bar" ? "Barras" : v === "donut" ? "Donut" : v === "waffle" ? "Waffle" : "Radial"}
+                  </button>
+                ))}
+              </div>
+            </div>
           }
         >
           {ads
-            ? <AdsWaffle data={ads} />
+            ? adsView === "bar"    ? <AdsBar    data={ads} />
+              : adsView === "donut"  ? <AdsDonut  data={ads} />
+              : adsView === "radial" ? <AdsRadial data={ads} />
+              : <AdsWaffle data={ads} />
             : <Loader height={260} label="Carregando regras…" />}
         </SectionCard>
 

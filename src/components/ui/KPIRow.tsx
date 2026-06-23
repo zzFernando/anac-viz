@@ -39,6 +39,11 @@ export default function KPIRow({ kpis, serie, scatter, rotas, aeroporto, layout 
   const connection = buildConnectionSummary(rotas);
 
   if (layout === "grid") {
+    const onTimePct = kpis
+      ? parseFloat(kpis.pontualidade.value.replace(",", ".")) || 0
+      : 0;
+    const delayedPct = onTimePct > 0 ? +(100 - onTimePct).toFixed(1) : 0;
+
     return (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <KPICard
@@ -47,7 +52,21 @@ export default function KPIRow({ kpis, serie, scatter, rotas, aeroporto, layout 
           sub={kpis?.pax.sub ?? ""}
           icon="✈"
           accent={ANAC_BLUE}
-        />
+        >
+          {sparkData.length > 1 && (
+            <div className="mt-3">
+              <Sparkline data={sparkData} color={ANAC_LIGHT} height={48} events={sparkEvents} />
+              <div className="text-[0.55rem] text-slate-400 mt-1 tracking-wider uppercase">
+                últimos 24 meses
+                {sparkEvents.length > 0 && (
+                  <span className="ml-1 normal-case tracking-normal">
+                    · {sparkEvents.map(e => e.label).join(", ")}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </KPICard>
         <KPICard
           label="Empresa com mais passageiros"
           value={kpis?.lider.value ?? "—"}
@@ -55,7 +74,9 @@ export default function KPIRow({ kpis, serie, scatter, rotas, aeroporto, layout 
           tooltip="Companhia que transportou mais passageiros pagos no aeroporto durante o período escolhido."
           icon="🏢"
           accent={GOLD}
-        />
+        >
+          <ShareBar points={scatter?.points} />
+        </KPICard>
         <KPICard
           label="Voos no horário"
           value={kpis?.pontualidade.value ?? "—"}
@@ -63,7 +84,30 @@ export default function KPIRow({ kpis, serie, scatter, rotas, aeroporto, layout 
           tooltip="Percentual de partidas com até 30 minutos de atraso no aeroporto escolhido."
           icon="🕐"
           accent={ANAC_LIGHT}
-        />
+        >
+          {onTimePct > 0 && (
+            <div className="mt-3 space-y-2">
+              <div>
+                <div className="flex justify-between text-[0.6rem] text-slate-500 mb-1">
+                  <span>No horário</span>
+                  <span className="font-semibold text-emerald-600">{kpis!.pontualidade.value}</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                  <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${onTimePct}%` }} />
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-[0.6rem] text-slate-500 mb-1">
+                  <span>Com atraso (&gt;30 min)</span>
+                  <span className="font-semibold text-red-500">{delayedPct.toLocaleString("pt-BR")}%</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                  <div className="h-full rounded-full bg-red-400 transition-all" style={{ width: `${delayedPct}%` }} />
+                </div>
+              </div>
+            </div>
+          )}
+        </KPICard>
         <ConnectionCard connection={connection} />
       </div>
     );
@@ -71,7 +115,7 @@ export default function KPIRow({ kpis, serie, scatter, rotas, aeroporto, layout 
 
   // layout "column" — KPI herói no topo + secundários
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col justify-between gap-2 h-full">
       {/* HERO */}
       <KPICard
         size="hero"

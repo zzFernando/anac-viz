@@ -1,22 +1,22 @@
 "use client";
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
-import type { SdrResumo } from "@/lib/types";
+import type { AdsResumo } from "@/lib/types";
 import { paletteColor, UI } from "@/lib/palette";
 import { useExpanded } from "@/lib/expandedContext";
 
-export default function AtaDonut({ data }: { data: SdrResumo }) {
+export default function AdsDonut({ data }: { data: AdsResumo }) {
   const ref  = useRef<SVGSVGElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const expanded = useExpanded();
 
   useEffect(() => {
-    if (!ref.current || !wrap.current || !data?.top_ata?.length) return;
+    if (!ref.current || !wrap.current || !data?.top_sistemas?.length) return;
 
-    const items = data.top_ata.slice(0, expanded ? 16 : 10).map((d, i) => ({
-      ...d,
-      color: paletteColor(i),
-    }));
+    const items = [...data.top_sistemas]
+      .sort((a, b) => b.n - a.n)
+      .slice(0, expanded ? 16 : 10)
+      .map((d, i) => ({ ...d, color: paletteColor(i) }));
 
     const W    = wrap.current.clientWidth;
     const H    = expanded ? 420 : 280;
@@ -32,19 +32,13 @@ export default function AtaDonut({ data }: { data: SdrResumo }) {
     const total = d3.sum(items, d => d.n);
 
     const pie = d3.pie<typeof items[0]>()
-      .value(d => d.n)
-      .sort(null)
-      .padAngle(0.018);
+      .value(d => d.n).sort(null).padAngle(0.018);
 
     const arc = d3.arc<d3.PieArcDatum<typeof items[0]>>()
-      .innerRadius(innerR)
-      .outerRadius(outerR)
-      .cornerRadius(3);
+      .innerRadius(innerR).outerRadius(outerR).cornerRadius(3);
 
     const arcHover = d3.arc<d3.PieArcDatum<typeof items[0]>>()
-      .innerRadius(innerR)
-      .outerRadius(outerR + 8)
-      .cornerRadius(3);
+      .innerRadius(innerR).outerRadius(outerR + 8).cornerRadius(3);
 
     const g = svg.append("g").attr("transform", `translate(${cx},${cy})`);
 
@@ -57,10 +51,8 @@ export default function AtaDonut({ data }: { data: SdrResumo }) {
       .attr("opacity", 0)
       .style("cursor", "pointer");
 
-    slices.transition().duration(500).delay((_, i) => i * 40)
-      .attr("opacity", 0.88);
+    slices.transition().duration(500).delay((_, i) => i * 40).attr("opacity", 0.88);
 
-    // Centro
     const center = g.append("g");
     center.append("text").attr("class", "lbl")
       .attr("text-anchor", "middle").attr("y", -10)
@@ -72,7 +64,6 @@ export default function AtaDonut({ data }: { data: SdrResumo }) {
       .attr("text-anchor", "middle").attr("y", 24)
       .attr("font-size", 11).attr("fill", UI.axisText);
 
-    // Legenda à esquerda
     const rowH    = Math.min(H / items.length, expanded ? 28 : 22);
     const offsetY = (H - items.length * rowH) / 2;
     const fs      = expanded ? 9 : 8;
@@ -92,7 +83,8 @@ export default function AtaDonut({ data }: { data: SdrResumo }) {
       const item = idx !== null ? items[idx] : null;
       center.select("text.val").text(item ? item.n.toLocaleString("pt-BR") : "");
       center.select("text.pct").text(item ? `${((item.n / total) * 100).toFixed(0)}%` : "");
-      center.select("text.lbl").text(item ? (item.nome.length > 14 ? item.nome.slice(0, 13) + "…" : item.nome) : "");
+      const lbl = item?.sistema ?? "";
+      center.select("text.lbl").text(lbl.length > 14 ? lbl.slice(0, 13) + "…" : lbl);
       const lt = legRows.transition().duration(100);
       if (idx === null) {
         lt.attr("opacity", 1);
@@ -126,10 +118,10 @@ export default function AtaDonut({ data }: { data: SdrResumo }) {
       .attr("x", 13).attr("y", rowH / 2 + 4)
       .attr("font-size", fs).attr("fill", UI.labelDark)
       .text(d => {
-        const lbl = `${d.ata} · ${d.nome}`;
+        const lbl = d.sistema;
         return lbl.length > maxChars ? lbl.slice(0, maxChars - 1) + "…" : lbl;
       })
-      .append("title").text(d => `${d.ata} · ${d.nome}`);
+      .append("title").text(d => d.sistema);
 
     legRows.append("text")
       .attr("x", LEG - 2).attr("y", rowH / 2 + 4)
@@ -142,7 +134,7 @@ export default function AtaDonut({ data }: { data: SdrResumo }) {
 
   return (
     <div ref={wrap} className="w-full">
-      <svg ref={ref} id="chart-ata" className="w-full" />
+      <svg ref={ref} id="chart-ads" className="w-full" />
     </div>
   );
 }
