@@ -2,6 +2,7 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
@@ -11,7 +12,7 @@ const config: Config = {
           dark:  "#001F50",
         },
         gold:    "#C89600",
-        surface: "#EEF2F7",
+        surface: "var(--surface)",
       },
       fontFamily: {
         sans: ["Inter", "Arial", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],

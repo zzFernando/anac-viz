@@ -7,15 +7,20 @@ export const PALETTE = [
   "#6B3FA0", // roxo
 ] as const;
 
-/** Cor neutra de UI (grids, eixos, textos). */
+function isDark() {
+  if (typeof document === "undefined") return false;
+  return document.documentElement.classList.contains("dark");
+}
+
+/** Cor neutra de UI (grids, eixos, textos) — dark-aware via getters. */
 export const UI = {
-  grid:       "#F1F5F9",
-  axisDomain: "#E2E8F0",
-  axisText:   "#64748B",
-  labelDark:  "#334155",
-  labelDim:   "#94A3B8",
-  textHi:     "#0F172A",
-} as const;
+  get grid()       { return isDark() ? "#1E293B" : "#F1F5F9"; },
+  get axisDomain() { return isDark() ? "#334155" : "#E2E8F0"; },
+  get axisText()   { return isDark() ? "#94A3B8" : "#64748B"; },
+  get labelDark()  { return isDark() ? "#CBD5E1" : "#334155"; },
+  get labelDim()   { return isDark() ? "#64748B" : "#94A3B8"; },
+  get textHi()     { return isDark() ? "#F1F5F9" : "#0F172A"; },
+};
 
 export function paletteColor(i: number): string {
   return PALETTE[i % PALETTE.length];

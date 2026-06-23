@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
+import { ThemeProvider } from "@/lib/themeContext";
 
 export const metadata: Metadata = {
   title: "Panorama da Aviação Doméstica — ANAC",
@@ -9,8 +10,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
-      <body className="bg-surface font-sans antialiased">{children}</body>
+    <html lang="pt-BR" suppressHydrationWarning>
+      <body className="bg-surface font-sans antialiased dark:text-slate-100">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import ThemeToggle from "./ThemeToggle";
 
 export default function DashboardHeader() {
   return (
@@ -17,6 +18,7 @@ export default function DashboardHeader() {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <span className="text-[0.7rem] font-semibold text-white/90 bg-white/10 border border-white/20 rounded-full px-3 py-1 tracking-widest">
             ANAC
           </span>

@@ -22,7 +22,7 @@ export default function KPICard({
 
   return (
     <div
-      className="bg-white rounded-card shadow-card border border-gray-100 relative overflow-hidden"
+      className="bg-white dark:bg-slate-800 rounded-card shadow-card border border-gray-100 dark:border-slate-700 relative overflow-hidden"
       style={{ borderTop: `3px solid ${accent}` }}
       title={tooltip}
     >
@@ -38,7 +38,7 @@ export default function KPICard({
       )}
       <div className={`${pad} relative z-10`}>
         <div className="flex items-baseline gap-1.5">
-          <p className={`${labelCls} font-bold uppercase tracking-widest text-slate-500`}>
+          <p className={`${labelCls} font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400`}>
             {label}
           </p>
           {tooltip && (
@@ -48,10 +48,10 @@ export default function KPICard({
             >ⓘ</span>
           )}
         </div>
-        <p className={`${valueCls} font-bold text-slate-900 leading-none tracking-tight mt-1`}>
+        <p className={`${valueCls} font-bold text-slate-900 dark:text-slate-100 leading-none tracking-tight mt-1`}>
           {value}
         </p>
-        <p className={`${subCls} text-slate-400 mt-1.5`}>{sub}</p>
+        <p className={`${subCls} text-slate-400 dark:text-slate-500 mt-1.5`}>{sub}</p>
         {children}
       </div>
     </div>

@@ -9,6 +9,10 @@
   --surface:    #EEF2F7;
 }
 
+.dark {
+  --surface: #0F172A;
+}
+
 * { box-sizing: border-box; }
 
 body {
@@ -120,7 +124,37 @@ body {
   max-width: 220px;
 }
 
+/* ── Dark mode overrides for non-Tailwind CSS classes ───────────── */
+.dark body {
+  color: #F1F5F9;
+}
+
+.dark .section-title {
+  color: #94A3B8;
+}
+
+.dark .chart-tooltip {
+  background: #1E293B;
+  border-color: #334155;
+  color: #F1F5F9;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.dark .tab-nav button {
+  color: #64748B;
+}
+.dark .tab-nav button:hover { color: #60A5FA; }
+.dark .tab-nav button.active {
+  color: #60A5FA;
+  border-bottom-color: #60A5FA;
+}
+
+.dark .range-track {
+  background: #334155;
+}
+
 /* ── Scrollbar ──────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+.dark ::-webkit-scrollbar-thumb { background: #475569; }
