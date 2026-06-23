@@ -22,11 +22,9 @@ import FrotaModelosLollipop from "@/components/charts/FrotaModelosLollipop";
 import FrotaEmpresas         from "@/components/charts/FrotaEmpresas";
 import FrotaEmpresasParallel from "@/components/charts/FrotaEmpresasParallel";
 import AtaChart              from "@/components/charts/AtaChart";
-import AtaLollipop           from "@/components/charts/AtaLollipop";
-import AtaDotPlot            from "@/components/charts/AtaDotPlot";
-import AtaPareto             from "@/components/charts/AtaPareto";
+import AtaDonut              from "@/components/charts/AtaDonut";
 import AtaWaffle             from "@/components/charts/AtaWaffle";
-import AtaHBar               from "@/components/charts/AtaHBar";
+import AtaRadial             from "@/components/charts/AtaRadial";
 import AdsWaffle             from "@/components/charts/AdsWaffle";
 import OcorrenciasFase        from "@/components/charts/OcorrenciasFase";
 import OcorrenciasFaseRadial  from "@/components/charts/OcorrenciasFaseRadial";
@@ -53,7 +51,6 @@ const OcorrenciasMap = dynamic(() => import("@/components/maps/OcorrenciasMap"),
 const MAP_TABS: { id: MapMode; label: string }[] = [
   { id: "volume", label: "Passageiros" },
   { id: "calor",  label: "Concentração" },
-  { id: "rotas",  label: "Rotas"  },
 ];
 
 const SERIE_TABS: { id: SerieMode; label: string; hint: string }[] = [
@@ -74,7 +71,7 @@ export default function Dashboard() {
   const [modelosView,      setModelosView]      = useState<"bar" | "lollipop">("lollipop");
   const [empresasView,     setEmpresasView]     = useState<"bar" | "parallel">("parallel");
   const [faseView,         setFaseView]         = useState<"bar" | "radial" | "waffle">("radial");
-  const [ataView,          setAtaView]          = useState<"bar" | "lollipop" | "dot" | "pareto" | "waffle" | "hbar">("hbar");
+  const [ataView,          setAtaView]          = useState<"bar" | "donut" | "waffle" | "radial">("donut");
   const [downloading, startDownload] = useTransition();
 
   const { data: filters } = useFilters();
@@ -396,10 +393,10 @@ export default function Dashboard() {
               <span className="text-[0.55rem] text-slate-400 cursor-help"
                     title="Relatos de dificuldade em serviço agrupados por sistema da aeronave. Ajuda a ver quais partes concentram mais problemas técnicos.">ⓘ</span>
               <div className="flex rounded overflow-hidden border border-slate-200">
-                {(["hbar", "bar", "lollipop", "pareto", "waffle"] as const).map(v => (
+                {(["bar", "donut", "waffle", "radial"] as const).map(v => (
                   <button key={v} onClick={() => setAtaView(v)}
                     className={`px-2 py-0.5 text-[0.6rem] font-medium transition-colors ${ataView === v ? "bg-slate-700 text-white" : "bg-white text-slate-500 hover:bg-slate-100"}`}>
-                    {v === "hbar" ? "H. Barras" : v === "bar" ? "Barras" : v === "lollipop" ? "Lollipop" : v === "pareto" ? "Pareto" : "Waffle"}
+                    {v === "bar" ? "Barras" : v === "donut" ? "Donut" : v === "waffle" ? "Waffle" : "Radial"}
                   </button>
                 ))}
               </div>
@@ -407,11 +404,10 @@ export default function Dashboard() {
           }
         >
           {sdr
-            ? ataView === "hbar" ? <AtaHBar data={sdr} />
-              : ataView === "bar" ? <AtaChart data={sdr} />
-              : ataView === "lollipop" ? <AtaLollipop data={sdr} />
-              : ataView === "pareto" ? <AtaPareto data={sdr} />
-              : <AtaWaffle data={sdr} />
+            ? ataView === "bar"    ? <AtaChart  data={sdr} />
+              : ataView === "donut"  ? <AtaDonut  data={sdr} />
+              : ataView === "waffle" ? <AtaWaffle data={sdr} />
+              : <AtaRadial data={sdr} />
             : <Loader height={260} label="Carregando falhas…" />}
         </SectionCard>
 

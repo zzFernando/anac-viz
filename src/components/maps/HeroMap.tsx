@@ -266,9 +266,21 @@ function buildLayers(data: RouteArcsData, mode: Mode, zoom: number, onClick: ((i
   }
 
   if (mode === "calor") {
+    // Pax somado apenas das rotas do aeroporto selecionado (is_focus),
+    // para que o heatmap mude visivelmente a cada troca de aeroporto.
+    const focusPaxBy = new Map<string, number>();
+    for (const arc of data.arcs) {
+      if (!arc.is_focus) continue;
+      focusPaxBy.set(arc.origem, (focusPaxBy.get(arc.origem) ?? 0) + arc.pax);
+      focusPaxBy.set(arc.destino, (focusPaxBy.get(arc.destino) ?? 0) + arc.pax);
+    }
+    const heatAirports = data.airports
+      .filter(a => focusPaxBy.has(a.icao) && a.icao !== data.aeroporto)
+      .map(a => ({ ...a, pax: focusPaxBy.get(a.icao)! }));
+
     layers.push(new HeatmapLayer({
-      id: "heat",
-      data: data.airports,
+      id: `heat-${data.aeroporto}`,
+      data: heatAirports,
       getPosition: (d: { lon: number; lat: number }) => [d.lon, d.lat],
       getWeight: (d: { pax: number }) => d.pax,
       radiusPixels: 55,
@@ -281,7 +293,7 @@ function buildLayers(data: RouteArcsData, mode: Mode, zoom: number, onClick: ((i
     const ref = data.airports.find(a => a.is_ref);
     if (ref) {
       layers.push(new ColumnLayer({
-        id: "ref-dot",
+        id: `ref-dot-${data.aeroporto}`,
         data: [ref],
         diskResolution: 24,
         radius: 9000,
