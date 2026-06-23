@@ -233,17 +233,6 @@ export default function FrotaEmpresas({ points }: Props) {
         .attr("fill", "#DC2626").text("mais antiga ▶");
     }
 
-    // Marca a empresa "mais nova" com estrela dourada
-    const top = data[0];
-    if (top) {
-      svg.append("text")
-        .attr("x", ML - 8)
-        .attr("y", MT + y(top.label)! + y.bandwidth() / 2 + 4)
-        .attr("text-anchor", "end")
-        .attr("font-size", 11)
-        .attr("fill", GOLD)
-        .text("★");
-    }
   }, [points, expanded]);
 
   return (
