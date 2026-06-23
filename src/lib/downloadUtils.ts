@@ -1,5 +1,7 @@
 "use client";
 
+import { mapRegistry } from "./mapRegistry";
+
 const SCALE = 2; // 2× resolução para PNG nítido
 
 async function svgToPng(svgEl: SVGSVGElement, filename: string): Promise<void> {
@@ -49,10 +51,65 @@ async function svgToPng(svgEl: SVGSVGElement, filename: string): Promise<void> {
 }
 
 async function canvasToPng(container: HTMLElement, filename: string): Promise<void> {
-  const canvas = container.querySelector("canvas");
-  if (!canvas) return;
+  const mapInst = mapRegistry.get(container.id);
+
+  if (mapInst) {
+    // MapLibre map: force repaint and capture inside the render callback
+    // (avoids stale/cleared WebGL buffer issues)
+    return new Promise<void>((resolve) => {
+      mapInst.once("render", () => {
+        // Capture synchronously inside the render callback — before the
+        // browser swaps/clears the WebGL buffer on the next tick.
+        const mapCanvas = mapInst.getCanvas();
+        const W = mapCanvas.width;
+        const H = mapCanvas.height;
+
+        const out = document.createElement("canvas");
+        out.width = W; out.height = H;
+        const ctx = out.getContext("2d")!;
+
+        ctx.fillStyle = "#06070d";
+        ctx.fillRect(0, 0, W, H);
+
+        // MapLibre base layer
+        try { ctx.drawImage(mapCanvas, 0, 0); } catch { /* skip */ }
+
+        // deck.gl overlay canvas (and any other canvas siblings)
+        const others = Array.from(container.querySelectorAll("canvas"))
+          .filter(c => c !== mapCanvas) as HTMLCanvasElement[];
+        for (const c of others) {
+          try { ctx.drawImage(c, 0, 0, W, H); } catch { /* skip */ }
+        }
+
+        out.toBlob((blob) => {
+          if (blob) triggerDownload(URL.createObjectURL(blob), `${filename}.png`);
+          resolve();
+        }, "image/png");
+      });
+      mapInst.triggerRepaint();
+    });
+  }
+
+  // Generic canvas container (non-map)
+  const canvases = Array.from(container.querySelectorAll("canvas")) as HTMLCanvasElement[];
+  if (!canvases.length) return;
+
+  const ref = canvases.reduce((a, b) => (b.width * b.height > a.width * a.height ? b : a));
+  const W = ref.width  || container.clientWidth;
+  const H = ref.height || container.clientHeight;
+
+  const out = document.createElement("canvas");
+  out.width = W; out.height = H;
+  const ctx = out.getContext("2d")!;
+  ctx.fillStyle = "#06070d";
+  ctx.fillRect(0, 0, W, H);
+
+  for (const c of canvases) {
+    try { ctx.drawImage(c, 0, 0, W, H); } catch { /* skip */ }
+  }
+
   return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
+    out.toBlob((blob) => {
       if (blob) triggerDownload(URL.createObjectURL(blob), `${filename}.png`);
       resolve();
     }, "image/png");

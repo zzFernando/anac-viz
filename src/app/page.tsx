@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useTransition } from "react";
+import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import DashboardHeader from "@/components/ui/DashboardHeader";
 import FiltersBar     from "@/components/ui/FiltersBar";
@@ -77,8 +77,6 @@ export default function Dashboard() {
   const [faseView,         setFaseView]         = useState<"bar" | "donut" | "radial" | "waffle">("radial");
   const [adsView,          setAdsView]          = useState<"bar" | "donut" | "radial" | "waffle">("waffle");
   const [ataView,          setAtaView]          = useState<"bar" | "donut" | "waffle" | "radial">("donut");
-  const [downloading, startDownload] = useTransition();
-
   const { data: filters } = useFilters();
   const { data: kpis }    = useKPIs(anoIni, anoFim, aeroporto);
   const { data: serie }   = useSerie(anoIni, anoFim, aeroporto);
@@ -93,18 +91,11 @@ export default function Dashboard() {
 
   const onAirportClick = useCallback((icao: string) => setAeroporto(icao), []);
 
-  function handleDownloadAll() {
-    startDownload(async () => {
-      const { downloadAllCharts } = await import("@/lib/downloadUtils");
-      await downloadAllCharts();
-    });
-  }
-
   const frotaT = frota?.transporte;
 
   return (
     <div className="min-h-screen bg-surface px-3 md:px-5 py-2 space-y-2">
-      <DashboardHeader downloading={downloading} onExportAll={handleDownloadAll} />
+      <DashboardHeader />
 
       <FiltersBar
         filters={filters}

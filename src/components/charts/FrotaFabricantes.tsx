@@ -91,11 +91,35 @@ export default function FrotaFabricantes({ data }: { data: FrotaFabricante[] }) 
       .call(s => s.select(".domain").attr("stroke", "#E2E8F0"))
       .call(s => s.selectAll("text").attr("font-size", 9).attr("fill", "#64748B"));
 
-    // Legenda compacta
+    // Legenda de gradiente (idade média da frota)
+    const legX = W - MR + 8;
+    const legW = MR - 12;
+    const gradId = "grad-fab";
+    const defs = svg.append("defs");
+    const grad = defs.append("linearGradient").attr("id", gradId)
+      .attr("x1", "0%").attr("x2", "100%");
+    grad.append("stop").attr("offset", "0%").attr("stop-color", paletteColor(2));
+    grad.append("stop").attr("offset", "100%").attr("stop-color", "#94A3B8");
+
     svg.append("text")
-      .attr("x", W - MR + 4).attr("y", MT + 10)
-      .attr("font-size", 8).attr("fill", "#94A3B8").attr("font-style", "italic")
-      .text("quantidade · idade média");
+      .attr("x", legX).attr("y", MT + 8)
+      .attr("font-size", 7.5).attr("fill", "#94A3B8").attr("font-style", "italic")
+      .text("idade média da frota");
+
+    svg.append("rect")
+      .attr("x", legX).attr("y", MT + 12)
+      .attr("width", legW).attr("height", 7).attr("rx", 2)
+      .attr("fill", `url(#${gradId})`);
+
+    svg.append("text")
+      .attr("x", legX).attr("y", MT + 27)
+      .attr("font-size", 7.5).attr("fill", "#64748B")
+      .text("+ nova");
+
+    svg.append("text")
+      .attr("x", legX + legW).attr("y", MT + 27)
+      .attr("text-anchor", "end").attr("font-size", 7.5).attr("fill", "#64748B")
+      .text("+ velha");
   }, [data, expanded]);
 
   return (

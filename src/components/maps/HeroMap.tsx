@@ -6,6 +6,7 @@ import { MapboxOverlay } from "@deck.gl/mapbox";
 import { ColumnLayer, ArcLayer } from "@deck.gl/layers";
 import { HeatmapLayer } from "@deck.gl/aggregation-layers";
 import type { RouteArcsData } from "@/lib/types";
+import { mapRegistry } from "@/lib/mapRegistry";
 
 export type Mode = "volume" | "calor" | "rotas";
 
@@ -104,14 +105,17 @@ export default function HeroMap({ data, onAirportClick, height, mode = "volume" 
       });
     });
 
-    const overlay = new MapboxOverlay({ interleaved: false, layers: [] });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const overlay = new MapboxOverlay({ interleaved: false, layers: [], ...({ glOptions: { preserveDrawingBuffer: true } } as any) });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     m.addControl(overlay as any);
 
     mapInstance.current = m;
     overlayRef.current  = overlay;
+    mapRegistry.register("chart-hero", m);
 
     return () => {
+      mapRegistry.unregister("chart-hero");
       m.remove();
       mapInstance.current = null;
       overlayRef.current  = null;
