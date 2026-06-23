@@ -4,14 +4,46 @@ import * as d3 from "d3";
 import type { FrotaFabricante } from "@/lib/types";
 import { paletteColor, UI } from "@/lib/palette";
 import { useExpanded } from "@/lib/expandedContext";
+import { useTheme } from "@/lib/themeContext";
+
+interface LabelLayout extends FrotaFabricante {
+  lx: number;
+  ly: number;
+  anchor: "start" | "end";
+}
+
+function spreadLabels(labels: LabelLayout[], minY: number, maxY: number, minGap = 14) {
+  const sorted = [...labels].sort((a, b) => a.ly - b.ly);
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i].ly - sorted[i - 1].ly < minGap) {
+      sorted[i].ly = sorted[i - 1].ly + minGap;
+    }
+  }
+
+  const overflow = sorted.at(-1)?.ly != null ? sorted.at(-1)!.ly - maxY : 0;
+  if (overflow > 0) sorted.forEach(label => { label.ly -= overflow; });
+
+  for (let i = sorted.length - 2; i >= 0; i--) {
+    if (sorted[i + 1].ly - sorted[i].ly < minGap) {
+      sorted[i].ly = sorted[i + 1].ly - minGap;
+    }
+  }
+
+  const underflow = sorted[0]?.ly != null ? minY - sorted[0].ly : 0;
+  if (underflow > 0) sorted.forEach(label => { label.ly += underflow; });
+}
 
 export default function FrotaFabricantesScatter({ data }: { data: FrotaFabricante[] }) {
   const ref  = useRef<SVGSVGElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const expanded = useExpanded();
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (!ref.current || !wrap.current || !data?.length) return;
+    const isDark = theme === "dark";
+    const dotStroke = isDark ? "#E2E8F0" : "#fff";
+    const labelStroke = isDark ? "#1E293B" : "#fff";
     const items = [...data].slice(0, 8);
     const W = wrap.current.clientWidth;
     const H = expanded ? 500 : 240;
@@ -75,28 +107,41 @@ export default function FrotaFabricantesScatter({ data }: { data: FrotaFabricant
       .attr("cy", d => y(d.n))
       .attr("r", 0)
       .attr("fill", (_, i) => paletteColor(i))
-      .attr("stroke", "#fff")
+      .attr("stroke", dotStroke)
       .attr("stroke-width", 1.5)
       .style("cursor", "default");
 
     dots.transition().duration(500).delay((_, i) => i * 60)
       .attr("r", 7);
 
+    const labels: LabelLayout[] = items.map((item) => {
+      const cx = x(item.idade_media);
+      const anchor = cx > iW * 0.55 ? "end" : "start";
+      return {
+        ...item,
+        anchor,
+        lx: anchor === "end" ? cx - 10 : cx + 10,
+        ly: y(item.n) + 4,
+      };
+    });
+    spreadLabels(labels.filter(label => label.anchor === "start"), 10, iH - 8);
+    spreadLabels(labels.filter(label => label.anchor === "end"), 10, iH - 8);
+
     // Labels com posicionamento inteligente (evita sobreposição simples)
     g.selectAll("text.lbl")
-      .data(items)
+      .data(labels)
       .enter().append("text")
       .attr("class", "lbl")
-      .attr("x", (d, i, arr) => {
-        const cx = x(d.idade_media);
-        // se perto da margem direita, vai para a esquerda
-        return cx > iW * 0.75 ? cx - 10 : cx + 10;
-      })
-      .attr("y", d => y(d.n) + 4)
-      .attr("text-anchor", (d) => x(d.idade_media) > iW * 0.75 ? "end" : "start")
+      .attr("x", d => d.lx)
+      .attr("y", d => d.ly)
+      .attr("text-anchor", d => d.anchor)
       .attr("font-size", 9)
       .attr("font-weight", 600)
       .attr("fill", UI.labelDark)
+      .attr("stroke", labelStroke)
+      .attr("stroke-width", 3)
+      .attr("stroke-linejoin", "round")
+      .attr("paint-order", "stroke")
       .attr("opacity", 0)
       .text(d => d.nome.split(" ")[0])   // primeira palavra do nome
       .transition().delay((_, i) => i * 60 + 300).duration(200)
@@ -106,7 +151,7 @@ export default function FrotaFabricantesScatter({ data }: { data: FrotaFabricant
     dots.append("title")
       .text(d => `${d.nome}\n${d.n} aeronaves · ${d.idade_media} anos de idade média`);
 
-  }, [data, expanded]);
+  }, [data, expanded, theme]);
 
   return (
     <div ref={wrap} className="w-full">

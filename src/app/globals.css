@@ -153,6 +153,25 @@ body {
   background: #334155;
 }
 
+/* D3 charts use presentation attributes; keep hard-coded light neutrals legible in dark mode. */
+.dark svg g.grid line {
+  stroke: #1E293B;
+}
+
+.dark svg .domain {
+  stroke: #334155;
+}
+
+.dark svg text[fill="#0F172A"],
+.dark svg text[fill="#334155"],
+.dark svg text[fill="#64748B"] {
+  fill: #CBD5E1;
+}
+
+.dark svg text[fill="#94A3B8"] {
+  fill: #94A3B8;
+}
+
 /* ── Scrollbar ──────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }

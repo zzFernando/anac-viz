@@ -88,20 +88,20 @@ export default function KPIRow({ kpis, serie, scatter, rotas, aeroporto, layout 
           {onTimePct > 0 && (
             <div className="mt-3 space-y-2">
               <div>
-                <div className="flex justify-between text-[0.6rem] text-slate-500 mb-1">
+                <div className="flex justify-between text-[0.6rem] text-slate-500 dark:text-slate-400 mb-1">
                   <span>No horário</span>
                   <span className="font-semibold text-emerald-600">{kpis!.pontualidade.value}</span>
                 </div>
-                <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div className="h-1.5 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
                   <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${onTimePct}%` }} />
                 </div>
               </div>
               <div>
-                <div className="flex justify-between text-[0.6rem] text-slate-500 mb-1">
+                <div className="flex justify-between text-[0.6rem] text-slate-500 dark:text-slate-400 mb-1">
                   <span>Com atraso (&gt;30 min)</span>
                   <span className="font-semibold text-red-500">{delayedPct.toLocaleString("pt-BR")}%</span>
                 </div>
-                <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div className="h-1.5 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
                   <div className="h-full rounded-full bg-red-400 transition-all" style={{ width: `${delayedPct}%` }} />
                 </div>
               </div>
@@ -196,11 +196,11 @@ function ConnectionCard({ connection }: { connection: ConnectionSummary }) {
         <div className="mt-3 space-y-1.5">
           {connection.items.slice(0, 3).map(item => (
             <div key={item.key}>
-              <div className="flex items-center justify-between gap-2 text-[0.62rem] text-slate-500">
+              <div className="flex items-center justify-between gap-2 text-[0.62rem] text-slate-500 dark:text-slate-400">
                 <span className="min-w-0 truncate">{item.label}</span>
-                <span className="shrink-0 font-semibold text-slate-600">{fmtPercent(item.pct)}</span>
+                <span className="shrink-0 font-semibold text-slate-600 dark:text-slate-300">{fmtPercent(item.pct)}</span>
               </div>
-              <div className="mt-0.5 h-1.5 overflow-hidden rounded-sm bg-slate-100">
+              <div className="mt-0.5 h-1.5 overflow-hidden rounded-sm bg-slate-100 dark:bg-slate-700">
                 <div
                   className="h-full rounded-sm bg-emerald-500"
                   style={{ width: `${Math.max(5, Math.min(100, item.pct))}%` }}

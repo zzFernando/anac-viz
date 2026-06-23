@@ -4,6 +4,7 @@ import * as d3 from "d3";
 import type { ScatterPoint } from "@/lib/types";
 import { UI } from "@/lib/palette";
 import { useExpanded } from "@/lib/expandedContext";
+import { useTheme } from "@/lib/themeContext";
 
 interface Dim {
   key:    keyof ScatterPoint;
@@ -38,9 +39,18 @@ export default function FrotaEmpresasParallel({ points }: { points: ScatterPoint
   const ref  = useRef<SVGSVGElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const expanded = useExpanded();
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (!ref.current || !wrap.current) return;
+    const isDark = theme === "dark";
+    const plotBg = isDark ? "#0F172A" : "#F8FAFC";
+    const plotStroke = isDark ? "#334155" : "#E2E8F0";
+    const haloStroke = isDark ? "#1E293B" : "#fff";
+    const valueBg = isDark ? "#1E293B" : "#fff";
+    const valueBorder = isDark ? "#334155" : "#E2E8F0";
+    const nodeStroke = isDark ? "#E2E8F0" : "#fff";
+    const axisStroke = isDark ? "#475569" : "#CBD5E1";
 
     const data = points.filter(p =>
       p.idade_frota != null && p.n_aeronaves != null && p.pct_ca_vigente != null
@@ -59,9 +69,13 @@ export default function FrotaEmpresasParallel({ points }: { points: ScatterPoint
 
     // Fundo suave atrás da área de plot
     svg.append("rect")
+      .attr("class", "plot-bg")
       .attr("x", ML).attr("y", MT)
       .attr("width", iW).attr("height", iH)
-      .attr("fill", "#F8FAFC").attr("rx", 6);
+      .attr("fill", plotBg)
+      .attr("stroke", plotStroke)
+      .attr("stroke-width", 1)
+      .attr("rx", 6);
 
     const g = svg.append("g").attr("transform", `translate(${ML},${MT})`);
 
@@ -91,10 +105,11 @@ export default function FrotaEmpresasParallel({ points }: { points: ScatterPoint
       .enter().append("path")
       .attr("d", d => linePath(d))
       .attr("fill", "none")
-      .attr("stroke", "#fff")
+      .attr("stroke", haloStroke)
       .attr("stroke-width", 6)
       .attr("stroke-linecap", "round")
-      .attr("stroke-linejoin", "round");
+      .attr("stroke-linejoin", "round")
+      .attr("opacity", isDark ? 0.8 : 1);
 
     // Linhas coloridas animadas
     const paths = g.selectAll("path.line")
@@ -131,7 +146,7 @@ export default function FrotaEmpresasParallel({ points }: { points: ScatterPoint
         .attr("cy", (d) => scales[dim.key](d[dim.key] as number ?? 0))
         .attr("r", 5)
         .attr("fill", d => d.color)
-        .attr("stroke", "#fff")
+        .attr("stroke", nodeStroke)
         .attr("stroke-width", 1.5)
         .attr("opacity", 0)
         .transition().delay((_, j) => j * 100 + 700).duration(150)
@@ -152,10 +167,15 @@ export default function FrotaEmpresasParallel({ points }: { points: ScatterPoint
       g.selectAll(`rect.lbg-${i}`)
         .data(data)
         .enter().append("rect")
-        .attr("x", isLast ? LX - 30 : LX - 2)
+        .attr("class", "value-bg")
+        .attr("x", isLast ? LX - 40 : LX - 3)
         .attr("y", (_, j) => safeYs[j] - 10)
-        .attr("width", 32).attr("height", 13)
-        .attr("fill", "#fff").attr("rx", 2).attr("opacity", 0.75);
+        .attr("width", 43).attr("height", 13)
+        .attr("fill", valueBg)
+        .attr("stroke", valueBorder)
+        .attr("stroke-width", 0.5)
+        .attr("rx", 2)
+        .attr("opacity", isDark ? 0.9 : 0.78);
 
       g.selectAll(`text.nv-${i}`)
         .data(data)
@@ -177,7 +197,7 @@ export default function FrotaEmpresasParallel({ points }: { points: ScatterPoint
 
       ax.append("line")
         .attr("y1", 0).attr("y2", iH)
-        .attr("stroke", "#CBD5E1").attr("stroke-width", 1.5)
+        .attr("stroke", axisStroke).attr("stroke-width", 1.5)
         .attr("stroke-dasharray", "3,3");
 
       ax.append("text")
@@ -221,7 +241,7 @@ export default function FrotaEmpresasParallel({ points }: { points: ScatterPoint
       legX += d.label.length * 6.5 + 24;
     });
 
-  }, [points, expanded]);
+  }, [points, expanded, theme]);
 
   return (
     <div ref={wrap} className="w-full">

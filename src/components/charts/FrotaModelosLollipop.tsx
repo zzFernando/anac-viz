@@ -4,11 +4,16 @@ import * as d3 from "d3";
 import type { FrotaModelo } from "@/lib/types";
 import { UI } from "@/lib/palette";
 import { useExpanded } from "@/lib/expandedContext";
+import { useTheme } from "@/lib/themeContext";
 
 // Verde → amarelo → vermelho conforme idade média
 const AGE_COLOR = d3.scaleThreshold<number, string>()
   .domain([8, 18])
   .range(["#0E7B6E", "#C89600", "#B83232"]);
+
+const AGE_COLOR_DARK = d3.scaleThreshold<number, string>()
+  .domain([8, 18])
+  .range(["#2DD4BF", "#FACC15", "#F87171"]);
 
 function ageLabel(anos: number | null): string {
   if (anos == null) return "";
@@ -21,9 +26,16 @@ export default function FrotaModelosLollipop({ data }: { data: FrotaModelo[] }) 
   const ref  = useRef<SVGSVGElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const expanded = useExpanded();
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (!ref.current || !wrap.current || !data?.length) return;
+    const isDark = theme === "dark";
+    const dotStroke = isDark ? "#E2E8F0" : "#fff";
+    const stemOpacity = isDark ? 0.95 : 0.68;
+    const stemWidth = isDark ? 3.25 : 2.25;
+    const trackStroke = isDark ? "#334155" : "#E2E8F0";
+    const ageColor = (anos: number | null) => (isDark ? AGE_COLOR_DARK : AGE_COLOR)(anos ?? 0);
     const items = [...data].slice(0, expanded ? 16 : 8);
     const W  = wrap.current.clientWidth;
     const ML = 90, MR = 110, MT = 8, MB = 26;
@@ -45,17 +57,30 @@ export default function FrotaModelosLollipop({ data }: { data: FrotaModelo[] }) 
       .call(s => s.select(".domain").remove())
       .call(s => s.selectAll("line").attr("stroke", UI.grid));
 
-    // Linha do lollipop (x=0 → x=valor), animada
+    // Trilho + linha do lollipop (x=0 → x=valor), animados.
+    g.selectAll("line.stem-track")
+      .data(items)
+      .enter().append("line")
+      .attr("class", "stem-track")
+      .attr("x1", 0).attr("x2", 0)
+      .attr("y1", d => cy(d)).attr("y2", d => cy(d))
+      .attr("stroke", trackStroke)
+      .attr("stroke-width", stemWidth + 2)
+      .attr("stroke-linecap", "round")
+      .attr("opacity", isDark ? 0.72 : 0.55)
+      .transition().duration(500).delay((_, i) => i * 55)
+      .attr("x2", d => x(d.n));
+
     g.selectAll("line.stem")
       .data(items)
       .enter().append("line")
       .attr("class", "stem")
       .attr("x1", 0).attr("x2", 0)
       .attr("y1", d => cy(d)).attr("y2", d => cy(d))
-      .attr("stroke", d => AGE_COLOR(d.idade_media ?? 0))
-      .attr("stroke-width", 2)
+      .attr("stroke", d => ageColor(d.idade_media))
+      .attr("stroke-width", stemWidth)
       .attr("stroke-linecap", "round")
-      .attr("opacity", 0.55)
+      .attr("opacity", stemOpacity)
       .transition().duration(500).delay((_, i) => i * 55)
       .attr("x2", d => x(d.n));
 
@@ -66,8 +91,8 @@ export default function FrotaModelosLollipop({ data }: { data: FrotaModelo[] }) 
       .attr("cx", 0)
       .attr("cy", d => cy(d))
       .attr("r", 6)
-      .attr("fill", d => AGE_COLOR(d.idade_media ?? 0))
-      .attr("stroke", "#fff")
+      .attr("fill", d => ageColor(d.idade_media))
+      .attr("stroke", dotStroke)
       .attr("stroke-width", 1.5)
       .transition().duration(500).delay((_, i) => i * 55)
       .attr("cx", d => x(d.n));
@@ -100,7 +125,7 @@ export default function FrotaModelosLollipop({ data }: { data: FrotaModelo[] }) 
       .attr("x", d => x(d.n) + 10 + String(d.n).length * 7 + 2)
       .attr("y", d => cy(d) + 4)
       .attr("font-size", 9).attr("font-style", "italic")
-      .attr("fill", d => AGE_COLOR(d.idade_media ?? 0))
+      .attr("fill", d => ageColor(d.idade_media))
       .attr("opacity", 0)
       .text(d => d.idade_media != null ? `${d.idade_media} anos` : "")
       .transition().delay((_, i) => i * 55 + 300).duration(150)
@@ -127,9 +152,9 @@ export default function FrotaModelosLollipop({ data }: { data: FrotaModelo[] }) 
 
     // Legenda de cores de idade
     const legendData = [
-      { label: "< 8 anos",  color: "#0E7B6E" },
-      { label: "8–18 anos", color: "#C89600" },
-      { label: "> 18 anos", color: "#B83232" },
+      { label: "< 8 anos",  color: ageColor(3) },
+      { label: "8–18 anos", color: ageColor(12) },
+      { label: "> 18 anos", color: ageColor(24) },
     ];
     const lx = W - MR + 8;
     legendData.forEach((d, i) => {
@@ -141,7 +166,7 @@ export default function FrotaModelosLollipop({ data }: { data: FrotaModelo[] }) 
         .attr("font-size", 8).attr("fill", UI.labelDim)
         .text(d.label);
     });
-  }, [data, expanded]);
+  }, [data, expanded, theme]);
 
   return (
     <div ref={wrap} className="w-full">

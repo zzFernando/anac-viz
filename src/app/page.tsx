@@ -112,7 +112,7 @@ export default function Dashboard() {
           title="Mapa da aviação doméstica"
           chartId="chart-hero"
           actions={
-            <div className="flex items-center bg-slate-100 rounded-md p-0.5 gap-0.5">
+            <div className="flex items-center bg-slate-100 dark:bg-slate-900/70 rounded-md p-0.5 gap-0.5">
               {MAP_TABS.map(t => (
                 <button
                   key={t.id}
@@ -120,7 +120,7 @@ export default function Dashboard() {
                   className={`px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider rounded transition-colors
                     ${mapMode === t.id
                       ? "bg-anac-blue text-white shadow-sm"
-                      : "text-slate-600 hover:bg-white"}`}
+                      : "text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700"}`}
                 >
                   {t.label}
                 </button>
@@ -140,7 +140,7 @@ export default function Dashboard() {
             chartId={rotasView === "bar" ? "chart-bar" : rotasView === "treemap" ? "chart-treemap" : "chart-donut"}
             actions={
               <div className="flex items-center gap-2">
-                <label className="flex items-center gap-1 text-[0.58rem] uppercase tracking-wider text-slate-600 cursor-pointer select-none">
+                <label className="flex items-center gap-1 text-[0.58rem] uppercase tracking-wider text-slate-600 dark:text-slate-400 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={groupMetros}
@@ -149,15 +149,15 @@ export default function Dashboard() {
                   />
                   Agrupar metros
                 </label>
-                <div className="flex rounded overflow-hidden border border-slate-200">
+                <div className="flex rounded overflow-hidden border border-slate-200 dark:border-slate-700">
                   <button onClick={() => setRotasView("bar")} title="Barras"
-                    className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${rotasView === "bar" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                    className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${rotasView === "bar" ? "bg-anac-blue text-white" : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"}`}
                   >▬</button>
                   <button onClick={() => setRotasView("treemap")} title="Treemap"
-                    className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${rotasView === "treemap" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                    className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${rotasView === "treemap" ? "bg-anac-blue text-white" : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"}`}
                   >▦</button>
                   <button onClick={() => setRotasView("donut")} title="Donut"
-                    className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${rotasView === "donut" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                    className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${rotasView === "donut" ? "bg-anac-blue text-white" : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"}`}
                   >◎</button>
                 </div>
               </div>
@@ -177,7 +177,7 @@ export default function Dashboard() {
             chartId="chart-serie"
             className="flex-1"
             actions={
-              <div className="flex items-center bg-slate-100 rounded-md p-0.5 gap-0.5">
+              <div className="flex items-center bg-slate-100 dark:bg-slate-900/70 rounded-md p-0.5 gap-0.5">
                 {SERIE_TABS.map(t => (
                   <button
                     key={t.id}
@@ -186,7 +186,7 @@ export default function Dashboard() {
                     className={`px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider rounded transition-colors
                       ${serieMode === t.id
                         ? "bg-anac-blue text-white shadow-sm"
-                        : "text-slate-600 hover:bg-white"}`}
+                        : "text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700"}`}
                   >
                     {t.label}
                   </button>
@@ -267,14 +267,14 @@ export default function Dashboard() {
           title="Fabricantes mais comuns — transporte"
           chartId="chart-frota-fabricantes"
           actions={
-            <div className="flex rounded overflow-hidden border border-slate-200">
+            <div className="flex rounded overflow-hidden border border-slate-200 dark:border-slate-700">
               <button
                 onClick={() => setFabricantesView("bar")}
-                className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${fabricantesView === "bar" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${fabricantesView === "bar" ? "bg-anac-blue text-white" : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"}`}
               >▬ Barras</button>
               <button
                 onClick={() => setFabricantesView("scatter")}
-                className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${fabricantesView === "scatter" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${fabricantesView === "scatter" ? "bg-anac-blue text-white" : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"}`}
               >◉ Scatter</button>
             </div>
           }
@@ -289,14 +289,14 @@ export default function Dashboard() {
           title="Modelos mais comuns — transporte"
           chartId="chart-frota-modelos"
           actions={
-            <div className="flex rounded overflow-hidden border border-slate-200">
+            <div className="flex rounded overflow-hidden border border-slate-200 dark:border-slate-700">
               <button
                 onClick={() => setModelosView("bar")}
-                className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${modelosView === "bar" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${modelosView === "bar" ? "bg-anac-blue text-white" : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"}`}
               >▬ Barras</button>
               <button
                 onClick={() => setModelosView("lollipop")}
-                className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${modelosView === "lollipop" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${modelosView === "lollipop" ? "bg-anac-blue text-white" : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"}`}
               >⦾ Lollipop</button>
             </div>
           }
@@ -314,14 +314,14 @@ export default function Dashboard() {
         title="Frota das empresas que operam no aeroporto"
         chartId="chart-frota-empresas"
         actions={
-          <div className="flex rounded overflow-hidden border border-slate-200">
+          <div className="flex rounded overflow-hidden border border-slate-200 dark:border-slate-700">
             <button
               onClick={() => setEmpresasView("bar")}
-              className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${empresasView === "bar" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+              className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${empresasView === "bar" ? "bg-anac-blue text-white" : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"}`}
             >▬ Barras</button>
             <button
               onClick={() => setEmpresasView("parallel")}
-              className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${empresasView === "parallel" ? "bg-anac-blue text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+              className={`px-2 py-0.5 text-[0.6rem] uppercase tracking-wider transition-colors ${empresasView === "parallel" ? "bg-anac-blue text-white" : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"}`}
             >⫴ Paralelas</button>
           </div>
         }
@@ -377,10 +377,10 @@ export default function Dashboard() {
             <div className="flex items-center gap-2">
               <span className="text-[0.55rem] text-slate-400 cursor-help"
                     title="Relatos de dificuldade em serviço agrupados por sistema da aeronave. Ajuda a ver quais partes concentram mais problemas técnicos.">ⓘ</span>
-              <div className="flex rounded overflow-hidden border border-slate-200">
+              <div className="flex rounded overflow-hidden border border-slate-200 dark:border-slate-700">
                 {(["bar", "donut", "waffle", "radial"] as const).map(v => (
                   <button key={v} onClick={() => setAtaView(v)}
-                    className={`px-2 py-0.5 text-[0.6rem] font-medium transition-colors ${ataView === v ? "bg-slate-700 text-white" : "bg-white text-slate-500 hover:bg-slate-100"}`}>
+                    className={`px-2 py-0.5 text-[0.6rem] font-medium transition-colors ${ataView === v ? "bg-slate-700 text-white" : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"}`}>
                     {v === "bar" ? "Barras" : v === "donut" ? "Donut" : v === "waffle" ? "Waffle" : "Radial"}
                   </button>
                 ))}
@@ -403,10 +403,10 @@ export default function Dashboard() {
             <div className="flex items-center gap-2">
               <span className="text-[0.55rem] text-slate-400 cursor-help"
                     title="Distribuição dos acidentes e incidentes pela etapa do voo em que aconteceram.">ⓘ</span>
-              <div className="flex rounded overflow-hidden border border-slate-200">
+              <div className="flex rounded overflow-hidden border border-slate-200 dark:border-slate-700">
                 {(["bar", "donut", "waffle", "radial"] as const).map(v => (
                   <button key={v} onClick={() => setFaseView(v)}
-                    className={`px-2 py-0.5 text-[0.6rem] font-medium transition-colors ${faseView === v ? "bg-slate-700 text-white" : "bg-white text-slate-500 hover:bg-slate-100"}`}>
+                    className={`px-2 py-0.5 text-[0.6rem] font-medium transition-colors ${faseView === v ? "bg-slate-700 text-white" : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"}`}>
                     {v === "bar" ? "Barras" : v === "donut" ? "Donut" : v === "waffle" ? "Waffle" : "Radial"}
                   </button>
                 ))}
@@ -432,10 +432,10 @@ export default function Dashboard() {
             <div className="flex items-center gap-2">
               <span className="text-[0.55rem] text-slate-400 cursor-help"
                     title="Conta Diretrizes de Aeronavegabilidade vigentes: regras da ANAC que obrigam inspeção, correção ou substituição em aeronaves, motores ou componentes. Não são acidentes nem falhas ocorridas.">ⓘ</span>
-              <div className="flex rounded overflow-hidden border border-slate-200">
+              <div className="flex rounded overflow-hidden border border-slate-200 dark:border-slate-700">
                 {(["bar", "donut", "waffle", "radial"] as const).map(v => (
                   <button key={v} onClick={() => setAdsView(v)}
-                    className={`px-2 py-0.5 text-[0.6rem] font-medium transition-colors ${adsView === v ? "bg-slate-700 text-white" : "bg-white text-slate-500 hover:bg-slate-100"}`}>
+                    className={`px-2 py-0.5 text-[0.6rem] font-medium transition-colors ${adsView === v ? "bg-slate-700 text-white" : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"}`}>
                     {v === "bar" ? "Barras" : v === "donut" ? "Donut" : v === "waffle" ? "Waffle" : "Radial"}
                   </button>
                 ))}
@@ -463,7 +463,7 @@ export default function Dashboard() {
 
       <MethodologyNote />
 
-      <footer className="text-center text-[0.68rem] text-slate-400 border-t border-gray-200 pt-2 pb-3">
+      <footer className="text-center text-[0.68rem] text-slate-400 dark:text-slate-500 border-t border-gray-200 dark:border-slate-700 pt-2 pb-3">
         Dados: ANAC — Agência Nacional de Aviação Civil · voos domésticos regulares · registros públicos
       </footer>
     </div>
