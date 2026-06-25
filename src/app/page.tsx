@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
+import { Github, Instagram, Mail } from "lucide-react";
 import DashboardHeader from "@/components/ui/DashboardHeader";
 import FiltersBar     from "@/components/ui/FiltersBar";
 import ThemeBand      from "@/components/ui/ThemeBand";
@@ -463,8 +464,60 @@ export default function Dashboard() {
 
       <MethodologyNote />
 
-      <footer className="text-center text-[0.68rem] text-slate-400 dark:text-slate-500 border-t border-gray-200 dark:border-slate-700 pt-2 pb-3">
-        Dados: ANAC — Agência Nacional de Aviação Civil · voos domésticos regulares · registros públicos
+      <footer className="border-t border-gray-200 dark:border-slate-700 pt-3 pb-4 text-center text-[0.68rem] text-slate-500 dark:text-slate-500">
+        <div className="flex flex-col items-center gap-2">
+          <p className="font-semibold text-slate-600 dark:text-slate-300">
+            © 2026 Fernando Kavinsky. Todos os direitos reservados.
+          </p>
+
+          <p>
+            Dados:{" "}
+            <a
+              href="https://sistemas.anac.gov.br/dadosabertos/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-anac-blue underline-offset-2 hover:underline dark:text-blue-400"
+            >
+              ANAC — Agência Nacional de Aviação Civil
+            </a>{" "}
+            · voos domésticos regulares · registros públicos
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <a
+              href="https://github.com/zzfernando"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 hover:text-anac-blue dark:hover:text-blue-400 transition-colors"
+            >
+              <Github className="h-3.5 w-3.5" aria-hidden="true" />
+              github.com/zzfernando
+            </a>
+            <a
+              href="https://instagram.com/voltekavinsky"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 hover:text-anac-blue dark:hover:text-blue-400 transition-colors"
+            >
+              <Instagram className="h-3.5 w-3.5" aria-hidden="true" />
+              @voltekavinsky
+            </a>
+            <a
+              href="mailto:fernando.kavinsky@ufrgs.br"
+              className="inline-flex items-center gap-1.5 hover:text-anac-blue dark:hover:text-blue-400 transition-colors"
+            >
+              <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+              fernando.kavinsky@ufrgs.br
+            </a>
+            <a
+              href="mailto:fernando.silveira@inf.ufrgs.br"
+              className="inline-flex items-center gap-1.5 hover:text-anac-blue dark:hover:text-blue-400 transition-colors"
+            >
+              <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+              fernando.silveira@inf.ufrgs.br
+            </a>
+          </div>
+        </div>
       </footer>
     </div>
   );
